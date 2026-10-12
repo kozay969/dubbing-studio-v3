@@ -22,9 +22,11 @@ function setStatus(id, msg, isErr = false) {
 }
 
 // ---------- Engine preload ----------
-getFFmpeg()
-  .then(() => { const e = $("engine-status"); e.textContent = "✅ Engine အဆင်သင့်"; e.classList.add("ok"); })
-  .catch(e => { $("engine-status").textContent = "❌ Engine တင်မရဘူး: " + e.message; });
+getFFmpeg((frac, label) => {
+  const e = $("engine-status");
+  if (frac >= 1) { e.textContent = "✅ Engine ready"; e.classList.add("ok"); }
+  else e.textContent = `⏳ ${label} ${Math.round(frac * 100)}%`;
+}).catch(e => { $("engine-status").textContent = "❌ Engine failed: " + e.message; });
 
 // ---------- Step 1: video ----------
 $("video-input").addEventListener("change", e => {
@@ -53,30 +55,6 @@ $("btn-transcribe").addEventListener("click", async () => {
   try {
     setStatus("transcribe-status", "🎵 Audio ထုတ်နေတယ် (ဖုန်းပေါ်မှာ)...");
     const audioBlob = await extractAudio(state.videoFile);
-    const tj = await transcribeAssemblyAI(audioBlob, key, m => setStatus("transcribe-status", m));
-    let segs = [];
-    if (tj.utterances && tj.utterances.length) {
-      segs = tj.utterances.map(u => ({ start: u.start / 1000, end: u.end / 1000, text: u.text }));
-    } else if (tj.words && tj.words.length) {
-      segs = segmentsFromWords(tj.words);
-    }
-    if (!segs.length) throw new Error("Segment မရဘူး — အသံ မပါလို့ဖြစ်နိုင်တယ်");
-    state.segments = segs;
-    setStatus("transcribe-status", `✅ ${segs.length} segment ရပြီ`);
-    renderSegments();
-    buildPrompt();
-  } catch (e) {
-    setStatus("transcribe-status", "❌ " + e.message, true);
-  }
-  $("btn-transcribe").disabled = false;
-});
-
-function renderSegments() {
-  $("segments-list").innerHTML = state.segments.map((s, i) =>
-    `<div class="item"><b>${i + 1}</b> [${s.start.toFixed(1)}–${s.end.toFixed(1)}s] ${escapeHtml(s.text)}</div>`
-  ).join("");
-}
-
 // ---------- Step 3: prompt ----------
 function buildPrompt() {
   const lines = state.segments.map((s, i) => {
@@ -242,4 +220,28 @@ $("btn-render").addEventListener("click", async () => {
 
 function escapeHtml(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+    const tj = await transcribeAssemblyAI(audioBlob, key, m => setStatus("transcribe-status", m));
+    let segs = [];
+    if (tj.utterances && tj.utterances.length) {
+      segs = tj.utterances.map(u => ({ start: u.start / 1000, end: u.end / 1000, text: u.text }));
+    } else if (tj.words && tj.words.length) {
+      segs = segmentsFromWords(tj.words);
+    }
+    if (!segs.length) throw new Error("Segment မရဘူး — အသံ မပါလို့ဖြစ်နိုင်တယ်");
+    state.segments = segs;
+    setStatus("transcribe-status", `✅ ${segs.length} segment ရပြီ`);
+    renderSegments();
+    buildPrompt();
+  } catch (e) {
+    setStatus("transcribe-status", "❌ " + e.message, true);
+  }
+  $("btn-transcribe").disabled = false;
+});
+
+function renderSegments() {
+  $("segments-list").innerHTML = state.segments.map((s, i) =>
+    `<div class="item"><b>${i + 1}</b> [${s.start.toFixed(1)}–${s.end.toFixed(1)}s] ${escapeHtml(s.text)}</div>`
+  ).join("");
 }
