@@ -1,0 +1,245 @@
+// Dubbing Studio v3 — on-device pipeline orchestration
+import { getFFmpeg } from "./ffmpeg.js";
+import { extractAudio, transcribeAssemblyAI, segmentsFromWords } from "./transcribe.js";
+import { edgeTTS } from "./tts.js";
+import { smartRender } from "./render.js";
+
+const $ = id => document.getElementById(id);
+
+const state = {
+  videoFile: null,
+  duration: 0,
+  segments: [],
+  translations: [],
+  clips: [],
+  clipDurs: [],
+};
+
+function setStatus(id, msg, isErr = false) {
+  const el = $(id);
+  el.textContent = msg;
+  el.classList.toggle("err", isErr);
+}
+
+// ---------- Engine preload ----------
+getFFmpeg()
+  .then(() => { const e = $("engine-status"); e.textContent = "✅ Engine အဆင်သင့်"; e.classList.add("ok"); })
+  .catch(e => { $("engine-status").textContent = "❌ Engine တင်မရဘူး: " + e.message; });
+
+// ---------- Step 1: video ----------
+$("video-input").addEventListener("change", e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  state.videoFile = f;
+  const url = URL.createObjectURL(f);
+  const v = $("video-preview");
+  v.src = url;
+  v.style.display = "block";
+  v.onloadedmetadata = () => {
+    state.duration = v.duration;
+    $("video-info").textContent = `⏱️ ${v.duration.toFixed(1)}s — ${f.name}`;
+  };
+});
+
+// ---------- Step 2: transcribe ----------
+$("aai-key").value = localStorage.getItem("aai_key") || "";
+
+$("btn-transcribe").addEventListener("click", async () => {
+  const key = $("aai-key").value.trim();
+  if (!key) return setStatus("transcribe-status", "API Key ထည့်ပါ", true);
+  if (!state.videoFile) return setStatus("transcribe-status", "အရင် video ရွေးပါ", true);
+  localStorage.setItem("aai_key", key);
+  $("btn-transcribe").disabled = true;
+  try {
+    setStatus("transcribe-status", "🎵 Audio ထုတ်နေတယ် (ဖုန်းပေါ်မှာ)...");
+    const audioBlob = await extractAudio(state.videoFile);
+    const tj = await transcribeAssemblyAI(audioBlob, key, m => setStatus("transcribe-status", m));
+    let segs = [];
+    if (tj.utterances && tj.utterances.length) {
+      segs = tj.utterances.map(u => ({ start: u.start / 1000, end: u.end / 1000, text: u.text }));
+    } else if (tj.words && tj.words.length) {
+      segs = segmentsFromWords(tj.words);
+    }
+    if (!segs.length) throw new Error("Segment မရဘူး — အသံ မပါလို့ဖြစ်နိုင်တယ်");
+    state.segments = segs;
+    setStatus("transcribe-status", `✅ ${segs.length} segment ရပြီ`);
+    renderSegments();
+    buildPrompt();
+  } catch (e) {
+    setStatus("transcribe-status", "❌ " + e.message, true);
+  }
+  $("btn-transcribe").disabled = false;
+});
+
+function renderSegments() {
+  $("segments-list").innerHTML = state.segments.map((s, i) =>
+    `<div class="item"><b>${i + 1}</b> [${s.start.toFixed(1)}–${s.end.toFixed(1)}s] ${escapeHtml(s.text)}</div>`
+  ).join("");
+}
+
+// ---------- Step 3: prompt ----------
+function buildPrompt() {
+  const lines = state.segments.map((s, i) => {
+    const dur = Math.round((s.end - s.start) * 10) / 10;
+    const maxc = Math.max(10, Math.round(dur * 8));
+    return `ID: ${i} | Duration: ${dur}s | MaxChars: ${maxc} | Text: "${s.text}"`;
+  });
+  $("prompt-text").value =
+    "You are a professional Chinese-to-Burmese dubbing translator. " +
+    "Translate each line into natural SPOKEN Burmese (စကားပြောဘာသာ), " +
+    "the way a Burmese movie-recap narrator speaks — warm, lively, natural. " +
+    "Do NOT translate word-for-word.\n\n" +
+    "RULES:\n" +
+    "(1) Full meaning must survive — never drop key info, rephrase tighter.\n" +
+    "(2) Must sound like natural spoken Burmese, never chopped.\n" +
+    "(3) Each line must fit within its MaxChars.\n" +
+    "(4) Keep names consistent.\n\n" +
+    'Return STRICTLY as JSON: {"translations": ["...", ...]} ' +
+    "in the same order. Myanmar script ONLY.\n\n" +
+    "Inputs:\n" + lines.join("\n");
+}
+
+$("btn-copy-prompt").addEventListener("click", async () => {
+  const t = $("prompt-text").value;
+  if (!t) return;
+  try { await navigator.clipboard.writeText(t); }
+  catch (e) {
+    $("prompt-text").select();
+    document.execCommand("copy");
+  }
+  alert("Copy ကူးပြီးပြီ ✅ — Gemini မှာ paste လုပ်ပါ");
+});
+
+// ---------- Step 4: parse translation ----------
+function parseTranslations(raw) {
+  let t = raw.trim().replace(/^```(?:json)?\s*/, "").replace(/\s*```$/, "");
+  try {
+    const j = JSON.parse(t);
+    if (Array.isArray(j)) return j.map(String);
+    if (j && Array.isArray(j.translations)) return j.translations.map(String);
+  } catch (e) {}
+  const m = t.match(/\{[\s\S]*?"translations"[\s\S]*?\}/);
+  if (m) {
+    try {
+      const j = JSON.parse(m[0]);
+      if (j && Array.isArray(j.translations)) return j.translations.map(String);
+    } catch (e) {}
+  }
+  const arr = t.match(/\[[\s\S]*\]/);
+  if (arr) {
+    try {
+      const j = JSON.parse(arr[0]);
+      if (Array.isArray(j)) return j.map(String);
+    } catch (e) {}
+  }
+  return null;
+}
+
+$("btn-parse").addEventListener("click", () => {
+  const trs = parseTranslations($("trans-json").value);
+  if (!trs) return setStatus("tts-status", "JSON ဖတ်မရဘူး — Gemini output အမှန် paste လုပ်ပါ", true);
+  state.translations = trs;
+  $("trans-list").innerHTML = trs.map((t, i) =>
+    `<div class="item"><b>${i + 1}</b> ${escapeHtml(t)}</div>`).join("");
+  if (state.segments.length && trs.length !== state.segments.length) {
+    setStatus("tts-status", `⚠️ လိုင်း ${trs.length} vs segment ${state.segments.length} — မကိုက်ဘူး`, true);
+  } else {
+    setStatus("tts-status", `✅ ${trs.length} လိုင်း အဆင်သင့်`);
+  }
+});
+
+// ---------- Step 4b: TTS ----------
+let actx = null;
+async function audioDuration(blob) {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === "suspended") await actx.resume();
+  const buf = await actx.decodeAudioData(await blob.arrayBuffer());
+  return buf.duration;
+}
+
+$("btn-tts").addEventListener("click", async () => {
+  if (!state.translations.length) return setStatus("tts-status", "အရင် translation paste လုပ်ပါ", true);
+  const voice = $("voice-select").value;
+  $("btn-tts").disabled = true;
+  state.clips = []; state.clipDurs = [];
+  $("clips-list").innerHTML = "";
+  try {
+    for (let i = 0; i < state.translations.length; i++) {
+      setStatus("tts-status", `🔊 ${i + 1}/${state.translations.length} ထုတ်နေတယ်...`);
+      const blob = await edgeTTS(state.translations[i], voice);
+      const dur = await audioDuration(blob);
+      state.clips.push(blob);
+      state.clipDurs.push(dur);
+      const url = URL.createObjectURL(blob);
+      $("clips-list").insertAdjacentHTML("beforeend",
+        `<div class="item"><b>clip${String(i + 1).padStart(2, "0")}</b> (${dur.toFixed(1)}s)<br><audio controls src="${url}"></audio></div>`);
+    }
+    setStatus("tts-status", `✅ ${state.clips.length} clip ရပြီ`);
+  } catch (e) {
+    setStatus("tts-status", "❌ " + e.message, true);
+  }
+  $("btn-tts").disabled = false;
+});
+
+// ---------- Step 4c: upload pre-made clips (fallback) ----------
+$("clip-input").addEventListener("change", async e => {
+  const files = [...e.target.files].sort((a, b) => a.name.localeCompare(b.name));
+  if (!files.length) return;
+  state.clips = []; state.clipDurs = [];
+  $("clips-list").innerHTML = "";
+  try {
+    for (let i = 0; i < files.length; i++) {
+      const dur = await audioDuration(files[i]);
+      state.clips.push(files[i]);
+      state.clipDurs.push(dur);
+      const url = URL.createObjectURL(files[i]);
+      $("clips-list").insertAdjacentHTML("beforeend",
+        `<div class="item"><b>${escapeHtml(files[i].name)}</b> (${dur.toFixed(1)}s)<br><audio controls src="${url}"></audio></div>`);
+    }
+    setStatus("tts-status", `✅ clip ${state.clips.length} ခု တင်ပြီးပြီ`);
+  } catch (err) {
+    setStatus("tts-status", "❌ " + err.message, true);
+  }
+});
+
+// ---------- Step 5: render ----------
+$("btn-render").addEventListener("click", async () => {
+  if (!state.videoFile) return alert("အရင် video ရွေးပါ");
+  if (!state.segments.length) return alert("အရင် transcribe လုပ်ပါ");
+  if (!state.clips.length || state.clips.length !== state.segments.length)
+    return alert("TTS အရင် ပြီးအောင် လုပ်ပါ");
+  const gapSpeed = parseFloat($("gap-speed").value);
+  $("btn-render").disabled = true;
+  $("render-progress-wrap").style.display = "block";
+  $("btn-download").style.display = "none";
+  $("output-preview").style.display = "none";
+  try {
+    const outBlob = await smartRender({
+      videoFile: state.videoFile,
+      segments: state.segments,
+      clips: state.clips,
+      clipDurs: state.clipDurs,
+      gapSpeed,
+      fps: 30,
+      vdur: state.duration,
+      onProgress: (p, msg) => {
+        $("render-progress-fill").style.width = (p * 100).toFixed(0) + "%";
+        setStatus("render-status", `${(p * 100).toFixed(0)}% — ${msg}`);
+      },
+    });
+    const url = URL.createObjectURL(outBlob);
+    $("output-preview").src = url;
+    $("output-preview").style.display = "block";
+    const dl = $("btn-download");
+    dl.href = url;
+    dl.style.display = "block";
+    setStatus("render-status", "🎉 ပြီးပြီ! Download ဆွဲပါ");
+  } catch (e) {
+    setStatus("render-status", "❌ " + e.message, true);
+  }
+  $("btn-render").disabled = false;
+});
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
