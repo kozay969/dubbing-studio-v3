@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dubbing Studio v3 — ဖုန်းပေါ်မှာ Render</title>
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">
+{"imports":{
+  "@ffmpeg/ffmpeg":"https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.15/dist/esm/index.js",
+  "@ffmpeg/util":"https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/dist/esm/index.js"
+}}
+</script>
+</head>
+<body>
+<header>
+  <h1>🎬 Dubbing Studio <span class="v3">v3</span></h1>
+  <p class="sub">ဖုန်းပေါ်မှာ render — video upload မလုပ်</p>
+  <div id="engine-status" class="engine">⏳ Engine တင်နေတယ်...</div>
+</header>
+
+<main>
+  <section class="card">
+    <h2>1️⃣ Video ရွေး</h2>
+    <input type="file" id="video-input" accept="video/*">
+    <video id="video-preview" controls playsinline style="display:none"></video>
+    <div id="video-info" class="info"></div>
+  </section>
+
+  <section class="card">
+    <h2>2️⃣ 🎙️ စာသားထုတ် (AssemblyAI)</h2>
+    <input type="password" id="aai-key" placeholder="AssemblyAI API Key" autocomplete="off">
+    <button id="btn-transcribe" class="primary">🚀 Transcribe</button>
+    <div id="transcribe-status" class="status"></div>
+    <div id="segments-list" class="list"></div>
+  </section>
+
+  <section class="card">
+    <h2>3️⃣ 📝 Gemini Prompt</h2>
+    <textarea id="prompt-text" readonly rows="8" placeholder="Step 2 ပြီးမှ prompt ပေါ်မယ်"></textarea>
+    <button id="btn-copy-prompt" class="secondary">📋 Copy ကူး</button>
+    <p class="hint">Gemini app / website မှာ paste လုပ် → ရတဲ့ JSON ကို Step 4 မှာ paste</p>
+  </section>
+
+  <section class="card">
+    <h2>4️⃣ 🌐 ဘာသာပြန် + 🔊 အသံ</h2>
+    <textarea id="trans-json" rows="5" placeholder='{"translations": [...]}'></textarea>
+    <button id="btn-parse" class="secondary">✅ Translation စစ်</button>
+    <div id="trans-list" class="list"></div>
+    <div class="row">
+      <label>အသံ:</label>
+      <select id="voice-select">
+        <option value="my-MM-ThihaNeural">Thiha (ကျား)</option>
+        <option value="my-MM-NilarNeural">Nilar (မ)</option>
+      </select>
+    </div>
+    <button id="btn-tts" class="primary">🔊 TTS — အသံထုတ်</button>
+    <div id="tts-status" class="status"></div>
+    <div class="row">
+      <label>📤 (သို့) clip MP3 တွေ တင်:</label>
+    </div>
+    <input type="file" id="clip-input" accept="audio/*" multiple>
+    <div id="clips-list" class="list"></div>
+  </section>
+
+  <section class="card">
+    <h2>5️⃣ 🎬 Render — ဖုန်းပေါ်မှာ</h2>
+    <div class="row">
+      <label>တိတ်နေရာ speed:</label>
+      <select id="gap-speed">
+        <option value="1.5">1.5x</option>
+        <option value="2" selected>2x (default)</option>
+        <option value="2.5">2.5x</option>
+        <option value="3">3x</option>
+      </select>
+    </div>
+    <button id="btn-render" class="primary big">🎬 Render စမယ်</button>
+    <div id="render-progress-wrap" class="progress-wrap" style="display:none">
+      <div class="progress-bar"><div id="render-progress-fill"></div></div>
+      <div id="render-status" class="status">0%</div>
+    </div>
+    <p class="warn">⚠️ Page ကို ဖွင့်ထားပါ — video က ဖုန်းပေါ်မှာပဲ လုပ်တာ, upload မလုပ်. ပြီးရင် download ဆွဲပါ.</p>
+    <video id="output-preview" controls playsinline style="display:none"></video>
+    <a id="btn-download" class="primary big btn-dl" style="display:none" download="dubbed_v3.mp4">📥 Download MP4</a>
+  </section>
+</main>
+
+<footer>💡 Video အတို (၁-၂ မိနစ်) နဲ့ အရင် စမ်းပါ</footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
