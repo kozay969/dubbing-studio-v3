@@ -1,1 +1,137 @@
-Ly8gVHJhbnNjcmliZTogZXh0cmFjdCBhdWRpbyBvbi1kZXZpY2Ug4oaSIEFzc2VtYmx5QUkgKGF1ZGlvLW9ubHkgdXBsb2FkKQovLyBVc2VzIFdlYiBBdWRpbyBBUEkgKG5vIGZmbXBlZyBkb3dubG9hZCBuZWVkZWQpIHdpdGggZmZtcGVnLndhc20gZmFsbGJhY2sKaW1wb3J0IHsgZ2V0RkZtcGVnIH0gZnJvbSAiLi9mZm1wZWcuanMiOwppbXBvcnQgeyBmZXRjaEZpbGUgfSBmcm9tICJAZmZtcGVnL3V0aWwiOwoKZnVuY3Rpb24gZW5jb2RlV0FWMTZrKGF1ZGlvQnVmZmVyKSB7CiAgY29uc3QgZGF0YSA9IGF1ZGlvQnVmZmVyLmdldENoYW5uZWxEYXRhKDApOwogIGNvbnN0IGJ1ZmZlciA9IG5ldyBBcnJheUJ1ZmZlcig0NCArIGRhdGEubGVuZ3RoICogMik7CiAgY29uc3QgdmlldyA9IG5ldyBEYXRhVmlldyhidWZmZXIpOwogIGNvbnN0IHdzID0gKG9mZiwgcykgPT4geyBmb3IgKGxldCBpID0gMDsgaSA8IHMubGVuZ3RoOyBpKyspIHZpZXcuc2V0VWludDgob2ZmICsgaSwgcy5jaGFyQ29kZUF0KGkpKTsgfTsKICB3cygwLCAiUklGRiIpOwogIHZpZXcuc2V0VWludDMyKDQsIDM2ICsgZGF0YS5sZW5ndGggKiAyLCB0cnVlKTsKICB3cyg4LCAiV0FWRSIpOyB3cygxMiwgImZtdCAiKTsKICB2aWV3LnNldFVpbnQzMigxNiwgMTYsIHRydWUpOwogIHZpZXcuc2V0VWludDE2KDIwLCAxLCB0cnVlKTsKICB2aWV3LnNldFVpbnQxNigyMiwgMSwgdHJ1ZSk7CiAgdmlldy5zZXRVaW50MzIoMjQsIDE2MDAwLCB0cnVlKTsKICB2aWV3LnNldFVpbnQzMigyOCwgMTYwMDAgKiAyLCB0cnVlKTsKICB2aWV3LnNldFVpbnQxNigzMiwgMiwgdHJ1ZSk7CiAgdmlldy5zZXRVaW50MTYoMzQsIDE2LCB0cnVlKTsKICB3cygzNiwgImRhdGEiKTsKICB2aWV3LnNldFVpbnQzMig0MCwgZGF0YS5sZW5ndGggKiAyLCB0cnVlKTsKICBsZXQgb2ZmID0gNDQ7CiAgZm9yIChsZXQgaSA9IDA7IGkgPCBkYXRhLmxlbmd0aDsgaSsrLCBvZmYgKz0gMikgewogICAgY29uc3QgcyA9IE1hdGgubWF4KC0xLCBNYXRoLm1pbigxLCBkYXRhW2ldKSk7CiAgICB2aWV3LnNldEludDE2KG9mZiwgcyA8IDAgPyBzICogMHg4MDAwIDogcyAqIDB4N0ZGRiwgdHJ1ZSk7CiAgfQogIHJldHVybiBuZXcgQmxvYihbYnVmZmVyXSwgeyB0eXBlOiAiYXVkaW8vd2F2IiB9KTsKfQoKZXhwb3J0IGFzeW5jIGZ1bmN0aW9uIGV4dHJhY3RBdWRpb1dlYih2aWRlb0ZpbGUpIHsKICBjb25zdCByYXcgPSBhd2FpdCB2aWRlb0ZpbGUuYXJyYXlCdWZmZXIoKTsKICBjb25zdCBBQyA9IHdpbmRvdy5BdWRpb0NvbnRleHQgfHwgd2luZG93LndlYmtpdEF1ZGlvQ29udGV4dDsKICBjb25zdCBhY3R4ID0gbmV3IEFDKCk7CiAgdHJ5IHsKICAgIGNvbnN0IGRlY29kZWQgPSBhd2FpdCBhY3R4LmRlY29kZUF1ZGlvRGF0YShyYXcpOwogICAgY29uc3Qgb2ZmID0gbmV3IE9mZmxpbmVBdWRpb0NvbnRleHQoMSwgTWF0aC5tYXgoMSwgTWF0aC5jZWlsKGRlY29kZWQuZHVyYXRpb24gKiAxNjAwMCkpLCAxNjAwMCk7CiAgICBjb25zdCBzcmMgPSBvZmYuY3JlYXRlQnVmZmVyU291cmNlKCk7CiAgICBzcmMuYnVmZmVyID0gZGVjb2RlZDsKICAgIHNyYy5jb25uZWN0KG9mZi5kZXN0aW5hdGlvbik7CiAgICBzcmMuc3RhcnQoKTsKICAgIGNvbnN0IHJlc2FtcGxlZCA9IGF3YWl0IG9mZi5zdGFydFJlbmRlcmluZygpOwogICAgcmV0dXJuIGVuY29kZVdBVjE2ayhyZXNhbXBsZWQpOwogIH0gZmluYWxseSB7CiAgICB0cnkgeyBhd2FpdCBhY3R4LmNsb3NlKCk7IH0gY2F0Y2ggKGUpIHt9CiAgfQp9CgpleHBvcnQgYXN5bmMgZnVuY3Rpb24gZXh0cmFjdEF1ZGlvRkZtcGVnKHZpZGVvRmlsZSkgewogIGNvbnN0IGZmbXBlZyA9IGF3YWl0IGdldEZGbXBlZygpOwogIHRyeSB7IGF3YWl0IGZmbXBlZy5kZWxldGVGaWxlKCJpbnB1dC5tcDQiKTsgfSBjYXRjaCAoZSkge30KICB0cnkgeyBhd2FpdCBmZm1wZWcuZGVsZXRlRmlsZSgiYXVkaW8ud2F2Iik7IH0gY2F0Y2ggKGUpIHt9CiAgYXdhaXQgZmZtcGVnLndyaXRlRmlsZSgiaW5wdXQubXA0IiwgYXdhaXQgZmV0Y2hGaWxlKHZpZGVvRmlsZSkpOwogIGF3YWl0IGZmbXBlZy5leGVjKFsKICAgICIteSIsICItdiIsICJlcnJvciIsCiAgICAiLWkiLCAiaW5wdXQubXA0IiwKICAgICItdm4iLCAiLWFyIiwgIjE2MDAwIiwgIi1hYyIsICIxIiwKICAgICItYzphIiwgInBjbV9zMTZsZSIsCiAgICAiYXVkaW8ud2F2IiwKICBdKTsKICBjb25zdCBkYXRhID0gYXdhaXQgZmZtcGVnLnJlYWRGaWxlKCJhdWRpby53YXYiKTsKICByZXR1cm4gbmV3IEJsb2IoW2RhdGFdLCB7IHR5cGU6ICJhdWRpby93YXYiIH0pOwp9CgpleHBvcnQgYXN5bmMgZnVuY3Rpb24gZXh0cmFjdEF1ZGlvKHZpZGVvRmlsZSkgewogIHRyeSB7CiAgICByZXR1cm4gYXdhaXQgZXh0cmFjdEF1ZGlvV2ViKHZpZGVvRmlsZSk7CiAgfSBjYXRjaCAoZSkgewogICAgLy8gV2ViIEF1ZGlvIGZhaWxlZCAobGFyZ2UgZmlsZT8pIOKAlCBmYWxsIGJhY2sgdG8gZmZtcGVnLndhc20KICAgIHJldHVybiBhd2FpdCBleHRyYWN0QXVkaW9GRm1wZWcodmlkZW9GaWxlKTsKICB9Cn0KCmV4cG9ydCBhc3luYyBmdW5jdGlvbiB0cmFuc2NyaWJlQXNzZW1ibHlBSShhdWRpb0Jsb2IsIGFwaUtleSwgb25TdGF0dXMpIHsKICBjb25zdCBIID0geyBhdXRob3JpemF0aW9uOiBhcGlLZXkgfTsKCiAgb25TdGF0dXMoIuKYge+4jyBBdWRpbyB1cGxvYWQuLi4iKTsKICBjb25zdCB1cCA9IGF3YWl0IGZldGNoKCJodHRwczovL2FwaS5hc3NlbWJseWFpLmNvbS92Mi91cGxvYWQiLCB7CiAgICBtZXRob2Q6ICJQT1NUIiwKICAgIGhlYWRlcnM6IEgsCiAgICBib2R5OiBhdWRpb0Jsb2IsCiAgfSk7CiAgaWYgKCF1cC5vaykgdGhyb3cgbmV3IEVycm9yKCJVcGxvYWQg4YCZ4YCh4YCx4YCs4YCE4YC64YCZ4YC84YCE4YC64YCV4YCrICgiICsgdXAuc3RhdHVzICsgIikiKTsKICBjb25zdCB7IHVwbG9hZF91cmwgfSA9IGF3YWl0IHVwLmpzb24oKTsKCiAgb25TdGF0dXMoIuKYge+4jyBUcmFuc2NyaWJlIOGAkOGAseGArOGAhOGAuuGAuOGAlOGAseGAkOGAmuGAui4uLiIpOwogIGNvbnN0IHRyID0gYXdhaXQgZmV0Y2goImh0dHBzOi8vYXBpLmFzc2VtYmx5YWkuY29tL3YyL3RyYW5zY3JpcHQiLCB7CiAgICBtZXRob2Q6ICJQT1NUIiwKICAgIGhlYWRlcnM6IHsgLi4uSCwgImNvbnRlbnQtdHlwZSI6ICJhcHBsaWNhdGlvbi9qc29uIiB9LAogICAgYm9keTogSlNPTi5zdHJpbmdpZnkoeyBhdWRpb191cmw6IHVwbG9hZF91cmwsIGxhbmd1YWdlX2RldGVjdGlvbjogdHJ1ZSB9KSwKICB9KTsKICBpZiAoIXRyLm9rKSB0aHJvdyBuZXcgRXJyb3IoIlRyYW5zY3JpYmUg4YCQ4YCx4YCs4YCE4YC64YC44YCZ4YCb4YCY4YCw4YC4ICgiICsgdHIuc3RhdHVzICsgIikiKTsKICBjb25zdCB7IGlkIH0gPSBhd2FpdCB0ci5qc29uKCk7CgogIGZvciAoOzspIHsKICAgIGF3YWl0IG5ldyBQcm9taXNlKHIgPT4gc2V0VGltZW91dChyLCAzMDAwKSk7CiAgICBjb25zdCBwciA9IGF3YWl0IGZldGNoKGBodHRwczovL2FwaS5hc3NlbWJseWFpLmNvbS92Mi90cmFuc2NyaXB0LyR7aWR9YCwgeyBoZWFkZXJzOiBIIH0pOwogICAgaWYgKCFwci5vaykgdGhyb3cgbmV3IEVycm9yKCJTdGF0dXMg4YCW4YCQ4YC64YCZ4YCb4YCY4YCw4YC4ICgiICsgcHIuc3RhdHVzICsgIikiKTsKICAgIGNvbnN0IHRqID0gYXdhaXQgcHIuanNvbigpOwogICAgaWYgKHRqLnN0YXR1cyA9PT0gImNvbXBsZXRlZCIpIHJldHVybiB0ajsKICAgIGlmICh0ai5zdGF0dXMgPT09ICJlcnJvciIpIHRocm93IG5ldyBFcnJvcigiVHJhbnNjcmliZSBlcnJvcjogIiArICh0ai5lcnJvciB8fCAidW5rbm93biIpKTsKICAgIG9uU3RhdHVzKCLimIHvuI8gVHJhbnNjcmliaW5nLi4uICgiICsgdGouc3RhdHVzICsgIikiKTsKICB9Cn0KCi8vIFBvcnQgb2YgdjIgX3NlZ21lbnRzX2Zyb21fd29yZHM6IHdvcmRzIGhhdmUgc3RhcnQvZW5kIGluIE1JTExJU0VDT05EUwpleHBvcnQgZnVuY3Rpb24gc2VnbWVudHNGcm9tV29yZHMod29yZHMsIG1heER1ciA9IDEyLjAsIHBhdXNlR2FwID0gMC44KSB7CiAgY29uc3QgcmF3ID0gW107CiAgbGV0IGN1ciA9IFtdLCBjdXJTdGFydCA9IG51bGwsIHByZXZFbmQgPSBudWxsOwoKICBjb25zdCBmbHVzaCA9IChlbmRNcykgPT4gewogICAgaWYgKGN1ci5sZW5ndGgpIHsKICAgICAgcmF3LnB1c2goewogICAgICAgIHN0YXJ0OiBNYXRoLnJvdW5kKGN1clN0YXJ0IC8gMTAwMCAqIDEwMCkgLyAxMDAsCiAgICAgICAgZW5kOiBNYXRoLnJvdW5kKGVuZE1zIC8gMTAwMCAqIDEwMCkgLyAxMDAsCiAgICAgICAgdGV4dDogY3VyLm1hcCh3ID0+IHcudGV4dCB8fCAiIikuam9pbigiIiksCiAgICAgIH0pOwogICAgfQogICAgY3VyID0gW107IGN1clN0YXJ0ID0gbnVsbDsKICB9OwoKICBmb3IgKGNvbnN0IHcgb2Ygd29yZHMpIHsKICAgIGNvbnN0IHMgPSB3LnN0YXJ0IHx8IDAsIGUgPSB3LmVuZCB8fCAwLCB0ID0gdy50ZXh0IHx8ICIiOwogICAgaWYgKCF0LnRyaW0oKSkgY29udGludWU7CiAgICBpZiAoY3VyU3RhcnQgPT09IG51bGwpIGN1clN0YXJ0ID0gczsKICAgIGlmIChwcmV2RW5kICE9PSBudWxsICYmIChzIC0gcHJldkVuZCkgLyAxMDAwID49IHBhdXNlR2FwICYmIGN1ci5sZW5ndGgpIHsKICAgICAgZmx1c2gocHJldkVuZCk7CiAgICAgIGN1clN0YXJ0ID0gczsKICAgIH0KICAgIGN1ci5wdXNoKHcpOwogICAgcHJldkVuZCA9IGU7CiAgICBpZiAoKGUgLSBjdXJTdGFydCkgLyAxMDAwID49IG1heER1cikgZmx1c2goZSk7CiAgfQogIGlmIChjdXIubGVuZ3RoKSBmbHVzaChwcmV2RW5kICE9PSBudWxsID8gcHJldkVuZCA6IChjdXJTdGFydCB8fCAwKSk7CgogIHJldHVybiByYXcuZmlsdGVyKHNnID0+IHNnLnRleHQudHJpbSgpKTsKfQo=
+// Transcribe: extract audio on-device → AssemblyAI (audio-only upload)
+// Uses Web Audio API (no ffmpeg download needed) with ffmpeg.wasm fallback
+import { getFFmpeg } from "./ffmpeg.js";
+import { fetchFile } from "@ffmpeg/util";
+
+function encodeWAV16k(audioBuffer) {
+  const data = audioBuffer.getChannelData(0);
+  const buffer = new ArrayBuffer(44 + data.length * 2);
+  const view = new DataView(buffer);
+  const ws = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+  ws(0, "RIFF");
+  view.setUint32(4, 36 + data.length * 2, true);
+  ws(8, "WAVE"); ws(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, 16000, true);
+  view.setUint32(28, 16000 * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  ws(36, "data");
+  view.setUint32(40, data.length * 2, true);
+  let off = 44;
+  for (let i = 0; i < data.length; i++, off += 2) {
+    const s = Math.max(-1, Math.min(1, data[i]));
+    view.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+  }
+  return new Blob([buffer], { type: "audio/wav" });
+}
+
+export async function extractAudioWeb(videoFile) {
+  const raw = await videoFile.arrayBuffer();
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const actx = new AC();
+  try {
+    const decoded = await actx.decodeAudioData(raw);
+    const off = new OfflineAudioContext(1, Math.max(1, Math.ceil(decoded.duration * 16000)), 16000);
+    const src = off.createBufferSource();
+    src.buffer = decoded;
+    src.connect(off.destination);
+    src.start();
+    const resampled = await off.startRendering();
+    return encodeWAV16k(resampled);
+  } finally {
+    try { await actx.close(); } catch (e) {}
+  }
+}
+
+export async function extractAudioFFmpeg(videoFile) {
+  const ffmpeg = await getFFmpeg();
+  try { await ffmpeg.deleteFile("input.mp4"); } catch (e) {}
+  try { await ffmpeg.deleteFile("audio.wav"); } catch (e) {}
+  await ffmpeg.writeFile("input.mp4", await fetchFile(videoFile));
+  await ffmpeg.exec([
+    "-y", "-v", "error",
+    "-i", "input.mp4",
+    "-vn", "-ar", "16000", "-ac", "1",
+    "-c:a", "pcm_s16le",
+    "audio.wav",
+  ]);
+  const data = await ffmpeg.readFile("audio.wav");
+  return new Blob([data], { type: "audio/wav" });
+}
+
+export async function extractAudio(videoFile) {
+  try {
+    return await extractAudioWeb(videoFile);
+  } catch (e) {
+    // Web Audio failed (large file?) — fall back to ffmpeg.wasm
+    return await extractAudioFFmpeg(videoFile);
+  }
+}
+
+export async function transcribeAssemblyAI(audioBlob, apiKey, onStatus) {
+  const H = { authorization: apiKey };
+
+  onStatus("☁️ Audio upload...");
+  const up = await fetch("https://api.assemblyai.com/v2/upload", {
+    method: "POST",
+    headers: H,
+    body: audioBlob,
+  });
+  if (!up.ok) throw new Error("Upload မအောင်မြင်ပါ (" + up.status + ")");
+  const { upload_url } = await up.json();
+
+  onStatus("☁️ Transcribe တောင်းနေတယ်...");
+  const tr = await fetch("https://api.assemblyai.com/v2/transcript", {
+    method: "POST",
+    headers: { ...H, "content-type": "application/json" },
+    body: JSON.stringify({ audio_url: upload_url, language_detection: true }),
+  });
+  if (!tr.ok) throw new Error("Transcribe တောင်းမရဘူး (" + tr.status + ")");
+  const { id } = await tr.json();
+
+  for (;;) {
+    await new Promise(r => setTimeout(r, 3000));
+    const pr = await fetch(`https://api.assemblyai.com/v2/transcript/${id}`, { headers: H });
+    if (!pr.ok) throw new Error("Status ဖတ်မရဘူး (" + pr.status + ")");
+    const tj = await pr.json();
+    if (tj.status === "completed") return tj;
+    if (tj.status === "error") throw new Error("Transcribe error: " + (tj.error || "unknown"));
+    onStatus("☁️ Transcribing... (" + tj.status + ")");
+  }
+}
+
+// Port of v2 _segments_from_words: words have start/end in MILLISECONDS
+export function segmentsFromWords(words, maxDur = 12.0, pauseGap = 0.8) {
+  const raw = [];
+  let cur = [], curStart = null, prevEnd = null;
+
+  const flush = (endMs) => {
+    if (cur.length) {
+      raw.push({
+        start: Math.round(curStart / 1000 * 100) / 100,
+        end: Math.round(endMs / 1000 * 100) / 100,
+        text: cur.map(w => w.text || "").join(""),
+      });
+    }
+    cur = []; curStart = null;
+  };
+
+  for (const w of words) {
+    const s = w.start || 0, e = w.end || 0, t = w.text || "";
+    if (!t.trim()) continue;
+    if (curStart === null) curStart = s;
+    if (prevEnd !== null && (s - prevEnd) / 1000 >= pauseGap && cur.length) {
+      flush(prevEnd);
+      curStart = s;
+    }
+    cur.push(w);
+    prevEnd = e;
+    if ((e - curStart) / 1000 >= maxDur) flush(e);
+  }
+  if (cur.length) flush(prevEnd !== null ? prevEnd : (curStart || 0));
+
+  return raw.filter(sg => sg.text.trim());
+}
