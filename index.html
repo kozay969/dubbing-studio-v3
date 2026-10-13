@@ -53,6 +53,7 @@
         <option value="my-MM-ThihaNeural">Thiha (ကျား)</option>
         <option value="my-MM-NilarNeural">Nilar (မ)</option>
         <option value="google-my">Google (မြန်မာ)</option>
+        <option value="gemini-my">Gemini (မြန်မာ) ✨</option>
       </select>
       <label>⚡ Speed:</label>
       <input type="range" id="speed-slider" min="0.5" max="2" step="0.1" value="1" style="width:100px">
@@ -71,6 +72,13 @@
     <div class="row">
       <input type="text" id="worker-url" placeholder="https://xxx.workers.dev" style="flex:1">
       <button id="btn-save-worker" class="secondary">💾 Save</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <label>🔑 Gemini API Key:</label>
+    </div>
+    <div class="row">
+      <input type="password" id="gemini-key" placeholder="AIza..." style="flex:1">
+      <button id="btn-save-gemini" class="secondary">💾 Save</button>
     </div>
     <div id="clips-list" class="list"></div>
   </section>
