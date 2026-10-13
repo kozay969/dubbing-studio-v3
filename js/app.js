@@ -1,7 +1,7 @@
 // Dubbing Studio v3 — on-device pipeline orchestration
 import { getFFmpeg } from "./ffmpeg.js";
 import { extractAudio, transcribeAssemblyAI, segmentsFromWords } from "./transcribe.js";
-import { edgeTTS, googleTTS, geminiTTS } from "./tts.js";
+import { edgeTTS, googleTTS, geminiTTS, serverTTS } from "./tts.js";
 import { smartRender } from "./render.js";
 
 const $ = id => document.getElementById(id);
@@ -174,6 +174,8 @@ $("btn-tts").addEventListener("click", async () => {
         blob = await googleTTS(state.translations[i]);
       } else if (voice === "gemini-my") {
         blob = await geminiTTS(state.translations[i]);
+      } else if (voice === "server-thiha" || voice === "server-nilar") {
+        blob = await serverTTS(state.translations[i], voice);
       } else {
         blob = await edgeTTS(state.translations[i], voice);
       }
