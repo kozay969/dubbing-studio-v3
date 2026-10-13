@@ -1,8 +1,10 @@
 // Edge TTS — direct WebSocket from browser (no API key, no server)
-// Protocol: TrustedClientToken + Sec-MS-GEC (SHA-256 DRM token) as query params
+// Tries v1 endpoint first, falls back to v2 (Microsoft is migrating)
 const TOKEN_DASHED = "6A5AA1D4-DFB0-4FF4-BA54-5B6D02881159";
 const TOKEN = TOKEN_DASHED.replace(/-/g, "");
+const TOKEN_V2 = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
 const GEC_VERSION = "1-143.0.3650.75";
+const GEC_VERSION_V2 = "2-155.0.4283.45";
 
 const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -13,20 +15,26 @@ function dateStr() {
 }
 
 // Sec-MS-GEC = SHA256( ticks_100ns + TOKEN ), ticks rounded down to 5-min boundary
-async function secMsGec() {
+async function secMsGec(token) {
   const WIN_EPOCH = 11644473600;
   let ticks = Date.now() / 1000 + WIN_EPOCH;
   ticks -= ticks % 300;
   ticks *= 1e7;
-  const payload = Math.floor(ticks).toString() + TOKEN;
+  const payload = Math.floor(ticks).toString() + token;
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(payload));
   return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, "0")).join("").toUpperCase();
 }
 
-async function wsUrl() {
-  const gec = await secMsGec();
+async function wsUrlV1() {
+  const gec = await secMsGec(TOKEN);
   return `wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1` +
     `?TrustedClientToken=${TOKEN_DASHED}&Sec-MS-GEC=${gec}&Sec-MS-GEC-Version=${GEC_VERSION}`;
+}
+
+async function wsUrlV2() {
+  const gec = await secMsGec(TOKEN_V2);
+  return `wss://api.msedgeservices.com/tts/cognitiveservices/websocket/v1` +
+    `?Ocp-Apim-Subscription-Key=${TOKEN_V2}&Sec-MS-GEC=${gec}&Sec-MS-GEC-Version=${GEC_VERSION_V2}`;
 }
 
 function escXml(s) {
@@ -45,6 +53,14 @@ export const VOICES = {
 };
 
 export function edgeTTS(text, voice) {
+  return tryTTS(text, voice, 0);
+}
+
+function tryTTS(text, voice, attempt) {
+  const urlFns = [wsUrlV1, wsUrlV2];
+  if (attempt >= urlFns.length) {
+    return Promise.reject(new Error("TTS ဆက်သွယ်မှု မအောင်မြင်ပါ (v1+v2) — MP3 upload သုံးပါ"));
+  }
   return new Promise((resolve, reject) => {
     let settled = false;
     const chunks = [];
@@ -64,13 +80,20 @@ export function edgeTTS(text, voice) {
       clearTimeout(timer);
       reject(new Error(msg));
     };
+    // v1 failed → try v2 endpoint
+    const tryNext = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      tryTTS(text, voice, attempt + 1).then(resolve, reject);
+    };
 
     (async () => {
       let ws;
       try {
-        ws = new WebSocket(await wsUrl());
+        ws = new WebSocket(await urlFns[attempt]());
       } catch (e) {
-        finishErr("WebSocket မရ: " + e.message);
+        tryNext();
         return;
       }
       ws.binaryType = "arraybuffer";
@@ -109,8 +132,8 @@ export function edgeTTS(text, voice) {
         }
       };
 
-      ws.onerror = () => finishErr("TTS ဆက်သွယ်မှု မအောင်မြင်ပါ");
-      ws.onclose = () => { if (!settled) finishErr("TTS ဆက်သွယ်မှု ပြတ်သွားတယ် (403 = Microsoft က block)"); };
+      ws.onerror = () => tryNext();
+      ws.onclose = () => { if (!settled && !chunks.length) tryNext(); };
     })();
   });
 }
