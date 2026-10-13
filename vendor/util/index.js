@@ -1,1 +1,153 @@
-aW1wb3J0IHsgRVJST1JfUkVTUE9OU0VfQk9EWV9SRUFERVIsIEVSUk9SX0lOQ09NUExFVEVEX0RPV05MT0FELCB9IGZyb20gIi4vZXJyb3JzLmpzIjsKaW1wb3J0IHsgSGVhZGVyQ29udGVudExlbmd0aCB9IGZyb20gIi4vY29uc3QuanMiOwpjb25zdCByZWFkRnJvbUJsb2JPckZpbGUgPSAoYmxvYikgPT4gbmV3IFByb21pc2UoKHJlc29sdmUsIHJlamVjdCkgPT4gewogICAgY29uc3QgZmlsZVJlYWRlciA9IG5ldyBGaWxlUmVhZGVyKCk7CiAgICBmaWxlUmVhZGVyLm9ubG9hZCA9ICgpID0+IHsKICAgICAgICBjb25zdCB7IHJlc3VsdCB9ID0gZmlsZVJlYWRlcjsKICAgICAgICBpZiAocmVzdWx0IGluc3RhbmNlb2YgQXJyYXlCdWZmZXIpIHsKICAgICAgICAgICAgcmVzb2x2ZShuZXcgVWludDhBcnJheShyZXN1bHQpKTsKICAgICAgICB9CiAgICAgICAgZWxzZSB7CiAgICAgICAgICAgIHJlc29sdmUobmV3IFVpbnQ4QXJyYXkoKSk7CiAgICAgICAgfQogICAgfTsKICAgIGZpbGVSZWFkZXIub25lcnJvciA9IChldmVudCkgPT4gewogICAgICAgIHJlamVjdChFcnJvcihgRmlsZSBjb3VsZCBub3QgYmUgcmVhZCEgQ29kZT0ke2V2ZW50Py50YXJnZXQ/LmVycm9yPy5jb2RlIHx8IC0xfWApKTsKICAgIH07CiAgICBmaWxlUmVhZGVyLnJlYWRBc0FycmF5QnVmZmVyKGJsb2IpOwp9KTsKLyoqCiAqIEFuIHV0aWwgZnVuY3Rpb24gdG8gZmV0Y2ggZGF0YSBmcm9tIHVybCBzdHJpbmcsIGJhc2U2NCwgVVJMLCBGaWxlIG9yIEJsb2IgZm9ybWF0LgogKgogKiBFeGFtcGxlczoKICogYGBgdHMKICogLy8gVVJMCiAqIGF3YWl0IGZldGNoRmlsZSgiaHR0cDovL2xvY2FsaG9zdDozMDAwL3ZpZGVvLm1wNCIpOwogKiAvLyBiYXNlNjQKICogYXdhaXQgZmV0Y2hGaWxlKCJkYXRhOjx0eXBlPjtiYXNlNjQsd0wyZHZZV3dnYlc5eVouLi4iKTsKICogLy8gVVJMCiAqIGF3YWl0IGZldGNoRmlsZShuZXcgVVJMKCJ2aWRlby5tcDQiLCBpbXBvcnQubWV0YS51cmwpKTsKICogLy8gRmlsZQogKiBmaWxlSW5wdXQuYWRkRXZlbnRMaXN0ZW5lcignY2hhbmdlJywgKGUpID0+IHsKICogICBhd2FpdCBmZXRjaEZpbGUoZS50YXJnZXQuZmlsZXNbMF0pOwogKiB9KTsKICogLy8gQmxvYgogKiBjb25zdCBibG9iID0gbmV3IEJsb2IoLi4uKTsKICogYXdhaXQgZmV0Y2hGaWxlKGJsb2IpOwogKiBgYGAKICovCmV4cG9ydCBjb25zdCBmZXRjaEZpbGUgPSBhc3luYyAoZmlsZSkgPT4gewogICAgbGV0IGRhdGE7CiAgICBpZiAodHlwZW9mIGZpbGUgPT09ICJzdHJpbmciKSB7CiAgICAgICAgLyogRnJvbSBiYXNlNjQgZm9ybWF0ICovCiAgICAgICAgaWYgKC9kYXRhOl9kYXRhXC8oW2EtekEtWl0qKTtiYXNlNjQsKFteIl0qKS8udGVzdChmaWxlKSkgewogICAgICAgICAgICBkYXRhID0gYXRvYihmaWxlLnNwbGl0KCIsIilbMV0pCiAgICAgICAgICAgICAgICAuc3BsaXQoIiIpCiAgICAgICAgICAgICAgICAubWFwKChjKSA9PiBjLmNoYXJDb2RlQXQoMCkpOwogICAgICAgICAgICAvKiBGcm9tIHJlbW90ZSBzZXJ2ZXIvVVJMICovCiAgICAgICAgfQogICAgICAgIGVsc2UgewogICAgICAgICAgICBkYXRhID0gYXdhaXQgKGF3YWl0IGZldGNoKGZpbGUpKS5hcnJheUJ1ZmZlcigpOwogICAgICAgIH0KICAgIH0KICAgIGVsc2UgaWYgKGZpbGUgaW5zdGFuY2VvZiBVUkwpIHsKICAgICAgICBkYXRhID0gYXdhaXQgKGF3YWl0IGZldGNoKGZpbGUpKS5hcnJheUJ1ZmZlcigpOwogICAgfQogICAgZWxzZSBpZiAoZmlsZSBpbnN0YW5jZW9mIEZpbGUgfHwgZmlsZSBpbnN0YW5jZW9mIEJsb2IpIHsKICAgICAgICBkYXRhID0gYXdhaXQgcmVhZEZyb21CbG9iT3JGaWxlKGZpbGUpOwogICAgfQogICAgZWxzZSB7CiAgICAgICAgcmV0dXJuIG5ldyBVaW50OEFycmF5KCk7CiAgICB9CiAgICByZXR1cm4gbmV3IFVpbnQ4QXJyYXkoZGF0YSk7Cn07Ci8qKgogKiBpbXBvcnRTY3JpcHQgZHluYW1pY2FsbHkgaW1wb3J0IGEgc2NyaXB0LCB1c2VmdWwgd2hlbiB5b3UKICogd2FudCB0byB1c2UgZGlmZmVyZW50IHZlcnNpb25zIG9mIGZmbXBlZy53YXNtIGJhc2VkIG9uIGVudmlyb25tZW50LgogKgogKiBFeGFtcGxlOgogKgogKiBgYGB0cwogKiBhd2FpdCBpbXBvcnRTY3JpcHQoImh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9mZm1wZWcuanMiKTsKICogYGBgCiAqLwpleHBvcnQgY29uc3QgaW1wb3J0U2NyaXB0ID0gYXN5bmMgKHVybCkgPT4gbmV3IFByb21pc2UoKHJlc29sdmUpID0+IHsKICAgIGNvbnN0IHNjcmlwdCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoInNjcmlwdCIpOwogICAgY29uc3QgZXZlbnRIYW5kbGVyID0gKCkgPT4gewogICAgICAgIHNjcmlwdC5yZW1vdmVFdmVudExpc3RlbmVyKCJsb2FkIiwgZXZlbnRIYW5kbGVyKTsKICAgICAgICByZXNvbHZlKCk7CiAgICB9OwogICAgc2NyaXB0LnNyYyA9IHVybDsKICAgIHNjcmlwdC50eXBlID0gInRleHQvamF2YXNjcmlwdCI7CiAgICBzY3JpcHQuYWRkRXZlbnRMaXN0ZW5lcigibG9hZCIsIGV2ZW50SGFuZGxlcik7CiAgICBkb2N1bWVudC5nZXRFbGVtZW50c0J5VGFnTmFtZSgiaGVhZCIpWzBdLmFwcGVuZENoaWxkKHNjcmlwdCk7Cn0pOwovKioKICogRG93bmxvYWQgY29udGVudCBvZiBhIFVSTCB3aXRoIHByb2dyZXNzLgogKgogKiBQcm9ncmVzcyBvbmx5IHdvcmtzIHdoZW4gQ29udGVudC1MZW5ndGggaXMgcHJvdmlkZWQgYnkgdGhlIHNlcnZlci4KICoKICovCmV4cG9ydCBjb25zdCBkb3dubG9hZFdpdGhQcm9ncmVzcyA9IGFzeW5jICh1cmwsIGNiKSA9PiB7CiAgICBjb25zdCByZXNwID0gYXdhaXQgZmV0Y2godXJsKTsKICAgIGxldCBidWY7CiAgICB0cnkgewogICAgICAgIC8vIFNldCB0b3RhbCB0byAtMSB0byBpbmRpY2F0ZSB0aGF0IHRoZXJlIGlzIG5vdCBDb250ZW50LVR5cGUgSGVhZGVyLgogICAgICAgIGNvbnN0IHRvdGFsID0gcGFyc2VJbnQocmVzcC5oZWFkZXJzLmdldChIZWFkZXJDb250ZW50TGVuZ3RoKSB8fCAiLTEiKTsKICAgICAgICBjb25zdCByZWFkZXIgPSByZXNwLmJvZHk/LmdldFJlYWRlcigpOwogICAgICAgIGlmICghcmVhZGVyKQogICAgICAgICAgICB0aHJvdyBFUlJPUl9SRVNQT05TRV9CT0RZX1JFQURFUjsKICAgICAgICBjb25zdCBjaHVua3MgPSBbXTsKICAgICAgICBsZXQgcmVjZWl2ZWQgPSAwOwogICAgICAgIGZvciAoOzspIHsKICAgICAgICAgICAgY29uc3QgeyBkb25lLCB2YWx1ZSB9ID0gYXdhaXQgcmVhZGVyLnJlYWQoKTsKICAgICAgICAgICAgY29uc3QgZGVsdGEgPSB2YWx1ZSA/IHZhbHVlLmxlbmd0aCA6IDA7CiAgICAgICAgICAgIGlmIChkb25lKSB7CiAgICAgICAgICAgICAgICBpZiAodG90YWwgIT0gLTEgJiYgdG90YWwgIT09IHJlY2VpdmVkKQogICAgICAgICAgICAgICAgICAgIHRocm93IEVSUk9SX0lOQ09NUExFVEVEX0RPV05MT0FEOwogICAgICAgICAgICAgICAgY2IgJiYgY2IoeyB1cmwsIHRvdGFsLCByZWNlaXZlZCwgZGVsdGEsIGRvbmUgfSk7CiAgICAgICAgICAgICAgICBicmVhazsKICAgICAgICAgICAgfQogICAgICAgICAgICBjaHVua3MucHVzaCh2YWx1ZSk7CiAgICAgICAgICAgIHJlY2VpdmVkICs9IGRlbHRhOwogICAgICAgICAgICBjYiAmJiBjYih7IHVybCwgdG90YWwsIHJlY2VpdmVkLCBkZWx0YSwgZG9uZSB9KTsKICAgICAgICB9CiAgICAgICAgY29uc3QgZGF0YSA9IG5ldyBVaW50OEFycmF5KHJlY2VpdmVkKTsKICAgICAgICBsZXQgcG9zaXRpb24gPSAwOwogICAgICAgIGZvciAoY29uc3QgY2h1bmsgb2YgY2h1bmtzKSB7CiAgICAgICAgICAgIGRhdGEuc2V0KGNodW5rLCBwb3NpdGlvbik7CiAgICAgICAgICAgIHBvc2l0aW9uICs9IGNodW5rLmxlbmd0aDsKICAgICAgICB9CiAgICAgICAgYnVmID0gZGF0YS5idWZmZXI7CiAgICB9CiAgICBjYXRjaCAoZSkgewogICAgICAgIGNvbnNvbGUubG9nKGBmYWlsZWQgdG8gc2VuZCBkb3dubG9hZCBwcm9ncmVzcyBldmVudDogYCwgZSk7CiAgICAgICAgLy8gRmV0Y2ggYXJyYXlCdWZmZXIgZGlyZWN0bHkgd2hlbiBpdCBpcyBub3QgcG9zc2libGUgdG8gZ2V0IHByb2dyZXNzLgogICAgICAgIGJ1ZiA9IGF3YWl0IHJlc3AuYXJyYXlCdWZmZXIoKTsKICAgICAgICBjYiAmJgogICAgICAgICAgICBjYih7CiAgICAgICAgICAgICAgICB1cmwsCiAgICAgICAgICAgICAgICB0b3RhbDogYnVmLmJ5dGVMZW5ndGgsCiAgICAgICAgICAgICAgICByZWNlaXZlZDogYnVmLmJ5dGVMZW5ndGgsCiAgICAgICAgICAgICAgICBkZWx0YTogMCwKICAgICAgICAgICAgICAgIGRvbmU6IHRydWUsCiAgICAgICAgICAgIH0pOwogICAgfQogICAgcmV0dXJuIGJ1ZjsKfTsKLyoqCiAqIHRvQmxvYlVSTCBmZXRjaGVzIGRhdGEgZnJvbSBhbiBVUkwgYW5kIHJldHVybiBhIGJsb2IgVVJMLgogKgogKiBFeGFtcGxlOgogKgogKiBgYGB0cwogKiBhd2FpdCB0b0Jsb2JVUkwoImh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9mZm1wZWcuanMiLCAidGV4dC9qYXZhc2NyaXB0Iik7CiAqIGBgYAogKi8KZXhwb3J0IGNvbnN0IHRvQmxvYlVSTCA9IGFzeW5jICh1cmwsIG1pbWVUeXBlLCBwcm9ncmVzcyA9IGZhbHNlLCBjYikgPT4gewogICAgY29uc3QgYnVmID0gcHJvZ3Jlc3MKICAgICAgICA/IGF3YWl0IGRvd25sb2FkV2l0aFByb2dyZXNzKHVybCwgY2IpCiAgICAgICAgOiBhd2FpdCAoYXdhaXQgZmV0Y2godXJsKSkuYXJyYXlCdWZmZXIoKTsKICAgIGNvbnN0IGJsb2IgPSBuZXcgQmxvYihbYnVmXSwgeyB0eXBlOiBtaW1lVHlwZSB9KTsKICAgIHJldHVybiBVUkwuY3JlYXRlT2JqZWN0VVJMKGJsb2IpOwp9Owo=
+import { ERROR_RESPONSE_BODY_READER, ERROR_INCOMPLETED_DOWNLOAD, } from "./errors.js";
+import { HeaderContentLength } from "./const.js";
+const readFromBlobOrFile = (blob) => new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
+    fileReader.onload = () => {
+        const { result } = fileReader;
+        if (result instanceof ArrayBuffer) {
+            resolve(new Uint8Array(result));
+        }
+        else {
+            resolve(new Uint8Array());
+        }
+    };
+    fileReader.onerror = (event) => {
+        reject(Error(`File could not be read! Code=${event?.target?.error?.code || -1}`));
+    };
+    fileReader.readAsArrayBuffer(blob);
+});
+/**
+ * An util function to fetch data from url string, base64, URL, File or Blob format.
+ *
+ * Examples:
+ * ```ts
+ * // URL
+ * await fetchFile("http://localhost:3000/video.mp4");
+ * // base64
+ * await fetchFile("data:<type>;base64,wL2dvYWwgbW9yZ...");
+ * // URL
+ * await fetchFile(new URL("video.mp4", import.meta.url));
+ * // File
+ * fileInput.addEventListener('change', (e) => {
+ *   await fetchFile(e.target.files[0]);
+ * });
+ * // Blob
+ * const blob = new Blob(...);
+ * await fetchFile(blob);
+ * ```
+ */
+export const fetchFile = async (file) => {
+    let data;
+    if (typeof file === "string") {
+        /* From base64 format */
+        if (/data:_data\/([a-zA-Z]*);base64,([^"]*)/.test(file)) {
+            data = atob(file.split(",")[1])
+                .split("")
+                .map((c) => c.charCodeAt(0));
+            /* From remote server/URL */
+        }
+        else {
+            data = await (await fetch(file)).arrayBuffer();
+        }
+    }
+    else if (file instanceof URL) {
+        data = await (await fetch(file)).arrayBuffer();
+    }
+    else if (file instanceof File || file instanceof Blob) {
+        data = await readFromBlobOrFile(file);
+    }
+    else {
+        return new Uint8Array();
+    }
+    return new Uint8Array(data);
+};
+/**
+ * importScript dynamically import a script, useful when you
+ * want to use different versions of ffmpeg.wasm based on environment.
+ *
+ * Example:
+ *
+ * ```ts
+ * await importScript("http://localhost:3000/ffmpeg.js");
+ * ```
+ */
+export const importScript = async (url) => new Promise((resolve) => {
+    const script = document.createElement("script");
+    const eventHandler = () => {
+        script.removeEventListener("load", eventHandler);
+        resolve();
+    };
+    script.src = url;
+    script.type = "text/javascript";
+    script.addEventListener("load", eventHandler);
+    document.getElementsByTagName("head")[0].appendChild(script);
+});
+/**
+ * Download content of a URL with progress.
+ *
+ * Progress only works when Content-Length is provided by the server.
+ *
+ */
+export const downloadWithProgress = async (url, cb) => {
+    const resp = await fetch(url);
+    let buf;
+    try {
+        // Set total to -1 to indicate that there is not Content-Type Header.
+        const total = parseInt(resp.headers.get(HeaderContentLength) || "-1");
+        const reader = resp.body?.getReader();
+        if (!reader)
+            throw ERROR_RESPONSE_BODY_READER;
+        const chunks = [];
+        let received = 0;
+        for (;;) {
+            const { done, value } = await reader.read();
+            const delta = value ? value.length : 0;
+            if (done) {
+                if (total != -1 && total !== received)
+                    throw ERROR_INCOMPLETED_DOWNLOAD;
+                cb && cb({ url, total, received, delta, done });
+                break;
+            }
+            chunks.push(value);
+            received += delta;
+            cb && cb({ url, total, received, delta, done });
+        }
+        const data = new Uint8Array(received);
+        let position = 0;
+        for (const chunk of chunks) {
+            data.set(chunk, position);
+            position += chunk.length;
+        }
+        buf = data.buffer;
+    }
+    catch (e) {
+        console.log(`failed to send download progress event: `, e);
+        // Fetch arrayBuffer directly when it is not possible to get progress.
+        buf = await resp.arrayBuffer();
+        cb &&
+            cb({
+                url,
+                total: buf.byteLength,
+                received: buf.byteLength,
+                delta: 0,
+                done: true,
+            });
+    }
+    return buf;
+};
+/**
+ * toBlobURL fetches data from an URL and return a blob URL.
+ *
+ * Example:
+ *
+ * ```ts
+ * await toBlobURL("http://localhost:3000/ffmpeg.js", "text/javascript");
+ * ```
+ */
+export const toBlobURL = async (url, mimeType, progress = false, cb) => {
+    const buf = progress
+        ? await downloadWithProgress(url, cb)
+        : await (await fetch(url)).arrayBuffer();
+    const blob = new Blob([buf], { type: mimeType });
+    return URL.createObjectURL(blob);
+};
