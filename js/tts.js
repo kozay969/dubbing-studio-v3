@@ -50,7 +50,21 @@ function makeSSML(text, voice) {
 export const VOICES = {
   thiha: "my-MM-ThihaNeural",
   nilar: "my-MM-NilarNeural",
+  google: "google-my",
 };
+
+// Google Translate TTS via Cloudflare Worker proxy (CORS)
+// Worker URL saved in localStorage("gtts_worker")
+export async function googleTTS(text) {
+  const workerUrl = localStorage.getItem("gtts_worker") || "";
+  if (!workerUrl) throw new Error("Google TTS Worker URL မထည့်ရသေးဘူး — အောက်က Settings မှာ ထည့်");
+  const url = workerUrl.replace(/\/$/, "") + "/?text=" + encodeURIComponent(text);
+  const r = await fetch(url);
+  if (!r.ok) throw new Error("Google TTS failed (" + r.status + ")");
+  const blob = await r.blob();
+  if (!blob.size) throw new Error("Google TTS: အသံ မရဘူး");
+  return blob;
+}
 
 export function edgeTTS(text, voice) {
   return tryTTS(text, voice, 0);
