@@ -52,7 +52,24 @@ export const VOICES = {
   nilar: "my-MM-NilarNeural",
   google: "google-my",
   gemini: "gemini-my",
+  server_thiha: "server-thiha",
+  server_nilar: "server-nilar",
 };
+
+// Server TTS via v2 (Singapore) — bypasses Microsoft IP block
+const V2_TTS_URL = "https://dubbing-studio-v2.onrender.com/api/tts";
+export async function serverTTS(text, voice) {
+  const v = voice === "server-nilar" ? "nilar" : "thiha";
+  const url = V2_TTS_URL + "?text=" + encodeURIComponent(text) + "&voice=" + v;
+  const r = await fetch(url);
+  if (!r.ok) {
+    const t = await r.text().catch(() => "");
+    throw new Error("Server TTS failed (" + r.status + ") " + t.slice(0, 80));
+  }
+  const blob = await r.blob();
+  if (!blob.size) throw new Error("Server TTS: အသံ မရဘူး");
+  return blob;
+}
 
 // Gemini TTS via API (Burmese supported, free tier)
 // API key saved in localStorage("gemini_key")
