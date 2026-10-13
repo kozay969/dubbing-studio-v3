@@ -1,1 +1,247 @@
-Ly8gRHViYmluZyBTdHVkaW8gdjMg4oCUIG9uLWRldmljZSBwaXBlbGluZSBvcmNoZXN0cmF0aW9uCmltcG9ydCB7IGdldEZGbXBlZyB9IGZyb20gIi4vZmZtcGVnLmpzIjsKaW1wb3J0IHsgZXh0cmFjdEF1ZGlvLCB0cmFuc2NyaWJlQXNzZW1ibHlBSSwgc2VnbWVudHNGcm9tV29yZHMgfSBmcm9tICIuL3RyYW5zY3JpYmUuanMiOwppbXBvcnQgeyBlZGdlVFRTIH0gZnJvbSAiLi90dHMuanMiOwppbXBvcnQgeyBzbWFydFJlbmRlciB9IGZyb20gIi4vcmVuZGVyLmpzIjsKCmNvbnN0ICQgPSBpZCA9PiBkb2N1bWVudC5nZXRFbGVtZW50QnlJZChpZCk7Cgpjb25zdCBzdGF0ZSA9IHsKICB2aWRlb0ZpbGU6IG51bGwsCiAgZHVyYXRpb246IDAsCiAgc2VnbWVudHM6IFtdLAogIHRyYW5zbGF0aW9uczogW10sCiAgY2xpcHM6IFtdLAogIGNsaXBEdXJzOiBbXSwKfTsKCmZ1bmN0aW9uIHNldFN0YXR1cyhpZCwgbXNnLCBpc0VyciA9IGZhbHNlKSB7CiAgY29uc3QgZWwgPSAkKGlkKTsKICBlbC50ZXh0Q29udGVudCA9IG1zZzsKICBlbC5jbGFzc0xpc3QudG9nZ2xlKCJlcnIiLCBpc0Vycik7Cn0KCi8vIC0tLS0tLS0tLS0gRW5naW5lIHByZWxvYWQgKGJhY2tncm91bmQsIHdpdGggcHJvZ3Jlc3Mg4oCUIG5vdCBibG9ja2luZyB0cmFuc2NyaWJlKSAtLS0tLS0tLS0tCmdldEZGbXBlZygoZnJhYywgbGFiZWwpID0+IHsKICBjb25zdCBlID0gJCgiZW5naW5lLXN0YXR1cyIpOwogIGlmIChmcmFjID49IDEpIHsgZS50ZXh0Q29udGVudCA9ICLinIUgRW5naW5lIOGAoeGAhuGAhOGAuuGAnuGAhOGAt+GAuiI7IGUuY2xhc3NMaXN0LmFkZCgib2siKTsgfQogIGVsc2UgZS50ZXh0Q29udGVudCA9IGDij7MgJHtsYWJlbH0gJHtNYXRoLnJvdW5kKGZyYWMgKiAxMDApfSVgOwp9KS5jYXRjaChlID0+IHsgJCgiZW5naW5lLXN0YXR1cyIpLnRleHRDb250ZW50ID0gIuKdjCBFbmdpbmUg4YCQ4YCE4YC64YCZ4YCb4YCY4YCw4YC4OiAiICsgZS5tZXNzYWdlOyB9KTsKCi8vIC0tLS0tLS0tLS0gU3RlcCAxOiB2aWRlbyAtLS0tLS0tLS0tCiQoInZpZGVvLWlucHV0IikuYWRkRXZlbnRMaXN0ZW5lcigiY2hhbmdlIiwgZSA9PiB7CiAgY29uc3QgZiA9IGUudGFyZ2V0LmZpbGVzWzBdOwogIGlmICghZikgcmV0dXJuOwogIHN0YXRlLnZpZGVvRmlsZSA9IGY7CiAgY29uc3QgdXJsID0gVVJMLmNyZWF0ZU9iamVjdFVSTChmKTsKICBjb25zdCB2ID0gJCgidmlkZW8tcHJldmlldyIpOwogIHYuc3JjID0gdXJsOwogIHYuc3R5bGUuZGlzcGxheSA9ICJibG9jayI7CiAgdi5vbmxvYWRlZG1ldGFkYXRhID0gKCkgPT4gewogICAgc3RhdGUuZHVyYXRpb24gPSB2LmR1cmF0aW9uOwogICAgJCgidmlkZW8taW5mbyIpLnRleHRDb250ZW50ID0gYOKPse+4jyAke3YuZHVyYXRpb24udG9GaXhlZCgxKX1zIOKAlCAke2YubmFtZX1gOwogIH07Cn0pOwoKLy8gLS0tLS0tLS0tLSBTdGVwIDI6IHRyYW5zY3JpYmUgLS0tLS0tLS0tLQokKCJhYWkta2V5IikudmFsdWUgPSBsb2NhbFN0b3JhZ2UuZ2V0SXRlbSgiYWFpX2tleSIpIHx8ICIiOwoKJCgiYnRuLXRyYW5zY3JpYmUiKS5hZGRFdmVudExpc3RlbmVyKCJjbGljayIsIGFzeW5jICgpID0+IHsKICBjb25zdCBrZXkgPSAkKCJhYWkta2V5IikudmFsdWUudHJpbSgpOwogIGlmICgha2V5KSByZXR1cm4gc2V0U3RhdHVzKCJ0cmFuc2NyaWJlLXN0YXR1cyIsICJBUEkgS2V5IOGAkeGAiuGAt+GAuuGAleGAqyIsIHRydWUpOwogIGlmICghc3RhdGUudmlkZW9GaWxlKSByZXR1cm4gc2V0U3RhdHVzKCJ0cmFuc2NyaWJlLXN0YXR1cyIsICLhgKHhgJvhgIThgLogdmlkZW8g4YCb4YC94YCx4YC44YCV4YCrIiwgdHJ1ZSk7CiAgbG9jYWxTdG9yYWdlLnNldEl0ZW0oImFhaV9rZXkiLCBrZXkpOwogICQoImJ0bi10cmFuc2NyaWJlIikuZGlzYWJsZWQgPSB0cnVlOwogIHRyeSB7CiAgICBzZXRTdGF0dXMoInRyYW5zY3JpYmUtc3RhdHVzIiwgIvCfjrUgQXVkaW8g4YCR4YCv4YCQ4YC64YCU4YCx4YCQ4YCa4YC6ICjhgJbhgK/hgJThgLrhgLjhgJXhgLHhgKvhgLrhgJnhgL7hgKwpLi4uIik7CiAgICBjb25zdCBhdWRpb0Jsb2IgPSBhd2FpdCBleHRyYWN0QXVkaW8oc3RhdGUudmlkZW9GaWxlKTsKICAgIGNvbnN0IHRqID0gYXdhaXQgdHJhbnNjcmliZUFzc2VtYmx5QUkoYXVkaW9CbG9iLCBrZXksIG0gPT4gc2V0U3RhdHVzKCJ0cmFuc2NyaWJlLXN0YXR1cyIsIG0pKTsKICAgIGxldCBzZWdzID0gW107CiAgICBpZiAodGoudXR0ZXJhbmNlcyAmJiB0ai51dHRlcmFuY2VzLmxlbmd0aCkgewogICAgICBzZWdzID0gdGoudXR0ZXJhbmNlcy5tYXAodSA9PiAoeyBzdGFydDogdS5zdGFydCAvIDEwMDAsIGVuZDogdS5lbmQgLyAxMDAwLCB0ZXh0OiB1LnRleHQgfSkpOwogICAgfSBlbHNlIGlmICh0ai53b3JkcyAmJiB0ai53b3Jkcy5sZW5ndGgpIHsKICAgICAgc2VncyA9IHNlZ21lbnRzRnJvbVdvcmRzKHRqLndvcmRzKTsKICAgIH0KICAgIGlmICghc2Vncy5sZW5ndGgpIHRocm93IG5ldyBFcnJvcigiU2VnbWVudCDhgJnhgJvhgJjhgLDhgLgg4oCUIOGAoeGAnuGAtiDhgJnhgJXhgKvhgJzhgK3hgK/hgLfhgJbhgLzhgIXhgLrhgJThgK3hgK/hgIThgLrhgJDhgJrhgLoiKTsKICAgIHN0YXRlLnNlZ21lbnRzID0gc2VnczsKICAgIHNldFN0YXR1cygidHJhbnNjcmliZS1zdGF0dXMiLCBg4pyFICR7c2Vncy5sZW5ndGh9IHNlZ21lbnQg4YCb4YCV4YC84YCuYCk7CiAgICByZW5kZXJTZWdtZW50cygpOwogICAgYnVpbGRQcm9tcHQoKTsKICB9IGNhdGNoIChlKSB7CiAgICBzZXRTdGF0dXMoInRyYW5zY3JpYmUtc3RhdHVzIiwgIuKdjCAiICsgZS5tZXNzYWdlLCB0cnVlKTsKICB9CiAgJCgiYnRuLXRyYW5zY3JpYmUiKS5kaXNhYmxlZCA9IGZhbHNlOwp9KTsKCmZ1bmN0aW9uIHJlbmRlclNlZ21lbnRzKCkgewogICQoInNlZ21lbnRzLWxpc3QiKS5pbm5lckhUTUwgPSBzdGF0ZS5zZWdtZW50cy5tYXAoKHMsIGkpID0+CiAgICBgPGRpdiBjbGFzcz0iaXRlbSI+PGI+JHtpICsgMX08L2I+IFske3Muc3RhcnQudG9GaXhlZCgxKX3igJMke3MuZW5kLnRvRml4ZWQoMSl9c10gJHtlc2NhcGVIdG1sKHMudGV4dCl9PC9kaXY+YAogICkuam9pbigiIik7Cn0KCi8vIC0tLS0tLS0tLS0gU3RlcCAzOiBwcm9tcHQgLS0tLS0tLS0tLQpmdW5jdGlvbiBidWlsZFByb21wdCgpIHsKICBjb25zdCBsaW5lcyA9IHN0YXRlLnNlZ21lbnRzLm1hcCgocywgaSkgPT4gewogICAgY29uc3QgZHVyID0gTWF0aC5yb3VuZCgocy5lbmQgLSBzLnN0YXJ0KSAqIDEwKSAvIDEwOwogICAgY29uc3QgbWF4YyA9IE1hdGgubWF4KDEwLCBNYXRoLnJvdW5kKGR1ciAqIDgpKTsKICAgIHJldHVybiBgSUQ6ICR7aX0gfCBEdXJhdGlvbjogJHtkdXJ9cyB8IE1heENoYXJzOiAke21heGN9IHwgVGV4dDogIiR7cy50ZXh0fSJgOwogIH0pOwogICQoInByb21wdC10ZXh0IikudmFsdWUgPQogICAgIllvdSBhcmUgYSBwcm9mZXNzaW9uYWwgQ2hpbmVzZS10by1CdXJtZXNlIGR1YmJpbmcgdHJhbnNsYXRvci4gIiArCiAgICAiVHJhbnNsYXRlIGVhY2ggbGluZSBpbnRvIG5hdHVyYWwgU1BPS0VOIEJ1cm1lc2UgKOGAheGAgOGArOGAuOGAleGAvOGAseGArOGAmOGArOGAnuGArCksICIgKwogICAgInRoZSB3YXkgYSBCdXJtZXNlIG1vdmllLXJlY2FwIG5hcnJhdG9yIHNwZWFrcyDigJQgd2FybSwgbGl2ZWx5LCBuYXR1cmFsLiAiICsKICAgICJEbyBOT1QgdHJhbnNsYXRlIHdvcmQtZm9yLXdvcmQuXG5cbiIgKwogICAgIlJVTEVTOlxuIiArCiAgICAiKDEpIEZ1bGwgbWVhbmluZyBtdXN0IHN1cnZpdmUg4oCUIG5ldmVyIGRyb3Aga2V5IGluZm8sIHJlcGhyYXNlIHRpZ2h0ZXIuXG4iICsKICAgICIoMikgTXVzdCBzb3VuZCBsaWtlIG5hdHVyYWwgc3Bva2VuIEJ1cm1lc2UsIG5ldmVyIGNob3BwZWQuXG4iICsKICAgICIoMykgRWFjaCBsaW5lIG11c3QgZml0IHdpdGhpbiBpdHMgTWF4Q2hhcnMuXG4iICsKICAgICIoNCkgS2VlcCBuYW1lcyBjb25zaXN0ZW50LlxuXG4iICsKICAgICdSZXR1cm4gU1RSSUNUTFkgYXMgSlNPTjogeyJ0cmFuc2xhdGlvbnMiOiBbIi4uLiIsIC4uLl19ICcgKwogICAgImluIHRoZSBzYW1lIG9yZGVyLiBNeWFubWFyIHNjcmlwdCBPTkxZLlxuXG4iICsKICAgICJJbnB1dHM6XG4iICsgbGluZXMuam9pbigiXG4iKTsKfQoKJCgiYnRuLWNvcHktcHJvbXB0IikuYWRkRXZlbnRMaXN0ZW5lcigiY2xpY2siLCBhc3luYyAoKSA9PiB7CiAgY29uc3QgdCA9ICQoInByb21wdC10ZXh0IikudmFsdWU7CiAgaWYgKCF0KSByZXR1cm47CiAgdHJ5IHsgYXdhaXQgbmF2aWdhdG9yLmNsaXBib2FyZC53cml0ZVRleHQodCk7IH0KICBjYXRjaCAoZSkgewogICAgJCgicHJvbXB0LXRleHQiKS5zZWxlY3QoKTsKICAgIGRvY3VtZW50LmV4ZWNDb21tYW5kKCJjb3B5Iik7CiAgfQogIGFsZXJ0KCJDb3B5IOGAgOGAsOGAuOGAleGAvOGAruGAuOGAleGAvOGAriDinIUg4oCUIEdlbWluaSDhgJnhgL7hgKwgcGFzdGUg4YCc4YCv4YCV4YC64YCV4YCrIik7Cn0pOwoKLy8gLS0tLS0tLS0tLSBTdGVwIDQ6IHBhcnNlIHRyYW5zbGF0aW9uIC0tLS0tLS0tLS0KZnVuY3Rpb24gcGFyc2VUcmFuc2xhdGlvbnMocmF3KSB7CiAgbGV0IHQgPSByYXcudHJpbSgpLnJlcGxhY2UoL15gYGAoPzpqc29uKT9ccyovLCAiIikucmVwbGFjZSgvXHMqYGBgJC8sICIiKTsKICB0cnkgewogICAgY29uc3QgaiA9IEpTT04ucGFyc2UodCk7CiAgICBpZiAoQXJyYXkuaXNBcnJheShqKSkgcmV0dXJuIGoubWFwKFN0cmluZyk7CiAgICBpZiAoaiAmJiBBcnJheS5pc0FycmF5KGoudHJhbnNsYXRpb25zKSkgcmV0dXJuIGoudHJhbnNsYXRpb25zLm1hcChTdHJpbmcpOwogIH0gY2F0Y2ggKGUpIHt9CiAgY29uc3QgbSA9IHQubWF0Y2goL1x7W1xzXFNdKj8idHJhbnNsYXRpb25zIltcc1xTXSo/XH0vKTsKICBpZiAobSkgewogICAgdHJ5IHsKICAgICAgY29uc3QgaiA9IEpTT04ucGFyc2UobVswXSk7CiAgICAgIGlmIChqICYmIEFycmF5LmlzQXJyYXkoai50cmFuc2xhdGlvbnMpKSByZXR1cm4gai50cmFuc2xhdGlvbnMubWFwKFN0cmluZyk7CiAgICB9IGNhdGNoIChlKSB7fQogIH0KICBjb25zdCBhcnIgPSB0Lm1hdGNoKC9cW1tcc1xTXSpcXS8pOwogIGlmIChhcnIpIHsKICAgIHRyeSB7CiAgICAgIGNvbnN0IGogPSBKU09OLnBhcnNlKGFyclswXSk7CiAgICAgIGlmIChBcnJheS5pc0FycmF5KGopKSByZXR1cm4gai5tYXAoU3RyaW5nKTsKICAgIH0gY2F0Y2ggKGUpIHt9CiAgfQogIHJldHVybiBudWxsOwp9CgokKCJidG4tcGFyc2UiKS5hZGRFdmVudExpc3RlbmVyKCJjbGljayIsICgpID0+IHsKICBjb25zdCB0cnMgPSBwYXJzZVRyYW5zbGF0aW9ucygkKCJ0cmFucy1qc29uIikudmFsdWUpOwogIGlmICghdHJzKSByZXR1cm4gc2V0U3RhdHVzKCJ0dHMtc3RhdHVzIiwgIkpTT04g4YCW4YCQ4YC64YCZ4YCb4YCY4YCw4YC4IOKAlCBHZW1pbmkgb3V0cHV0IOGAoeGAmeGAvuGAlOGAuiBwYXN0ZSDhgJzhgK/hgJXhgLrhgJXhgKsiLCB0cnVlKTsKICBzdGF0ZS50cmFuc2xhdGlvbnMgPSB0cnM7CiAgJCgidHJhbnMtbGlzdCIpLmlubmVySFRNTCA9IHRycy5tYXAoKHQsIGkpID0+CiAgICBgPGRpdiBjbGFzcz0iaXRlbSI+PGI+JHtpICsgMX08L2I+ICR7ZXNjYXBlSHRtbCh0KX08L2Rpdj5gKS5qb2luKCIiKTsKICBpZiAoc3RhdGUuc2VnbWVudHMubGVuZ3RoICYmIHRycy5sZW5ndGggIT09IHN0YXRlLnNlZ21lbnRzLmxlbmd0aCkgewogICAgc2V0U3RhdHVzKCJ0dHMtc3RhdHVzIiwgYOKaoO+4jyDhgJzhgK3hgK/hgIThgLrhgLggJHt0cnMubGVuZ3RofSB2cyBzZWdtZW50ICR7c3RhdGUuc2VnbWVudHMubGVuZ3RofSDigJQg4YCZ4YCA4YCt4YCv4YCA4YC64YCY4YCw4YC4YCwgdHJ1ZSk7CiAgfSBlbHNlIHsKICAgIHNldFN0YXR1cygidHRzLXN0YXR1cyIsIGDinIUgJHt0cnMubGVuZ3RofSDhgJzhgK3hgK/hgIThgLrhgLgg4YCh4YCG4YCE4YC64YCe4YCE4YC34YC6YCk7CiAgfQp9KTsKCi8vIC0tLS0tLS0tLS0gU3RlcCA0YjogVFRTIC0tLS0tLS0tLS0KbGV0IGFjdHggPSBudWxsOwphc3luYyBmdW5jdGlvbiBhdWRpb0R1cmF0aW9uKGJsb2IpIHsKICBpZiAoIWFjdHgpIGFjdHggPSBuZXcgKHdpbmRvdy5BdWRpb0NvbnRleHQgfHwgd2luZG93LndlYmtpdEF1ZGlvQ29udGV4dCkoKTsKICBpZiAoYWN0eC5zdGF0ZSA9PT0gInN1c3BlbmRlZCIpIGF3YWl0IGFjdHgucmVzdW1lKCk7CiAgY29uc3QgYnVmID0gYXdhaXQgYWN0eC5kZWNvZGVBdWRpb0RhdGEoYXdhaXQgYmxvYi5hcnJheUJ1ZmZlcigpKTsKICByZXR1cm4gYnVmLmR1cmF0aW9uOwp9CgokKCJidG4tdHRzIikuYWRkRXZlbnRMaXN0ZW5lcigiY2xpY2siLCBhc3luYyAoKSA9PiB7CiAgaWYgKCFzdGF0ZS50cmFuc2xhdGlvbnMubGVuZ3RoKSByZXR1cm4gc2V0U3RhdHVzKCJ0dHMtc3RhdHVzIiwgIuGAoeGAm+GAhOGAuiB0cmFuc2xhdGlvbiBwYXN0ZSDhgJzhgK/hgJXhgLrhgJXhgKsiLCB0cnVlKTsKICBjb25zdCB2b2ljZSA9ICQoInZvaWNlLXNlbGVjdCIpLnZhbHVlOwogICQoImJ0bi10dHMiKS5kaXNhYmxlZCA9IHRydWU7CiAgc3RhdGUuY2xpcHMgPSBbXTsgc3RhdGUuY2xpcER1cnMgPSBbXTsKICAkKCJjbGlwcy1saXN0IikuaW5uZXJIVE1MID0gIiI7CiAgdHJ5IHsKICAgIGZvciAobGV0IGkgPSAwOyBpIDwgc3RhdGUudHJhbnNsYXRpb25zLmxlbmd0aDsgaSsrKSB7CiAgICAgIHNldFN0YXR1cygidHRzLXN0YXR1cyIsIGDwn5SKICR7aSArIDF9LyR7c3RhdGUudHJhbnNsYXRpb25zLmxlbmd0aH0g4YCR4YCv4YCQ4YC64YCU4YCx4YCQ4YCa4YC6Li4uYCk7CiAgICAgIGNvbnN0IGJsb2IgPSBhd2FpdCBlZGdlVFRTKHN0YXRlLnRyYW5zbGF0aW9uc1tpXSwgdm9pY2UpOwogICAgICBjb25zdCBkdXIgPSBhd2FpdCBhdWRpb0R1cmF0aW9uKGJsb2IpOwogICAgICBzdGF0ZS5jbGlwcy5wdXNoKGJsb2IpOwogICAgICBzdGF0ZS5jbGlwRHVycy5wdXNoKGR1cik7CiAgICAgIGNvbnN0IHVybCA9IFVSTC5jcmVhdGVPYmplY3RVUkwoYmxvYik7CiAgICAgICQoImNsaXBzLWxpc3QiKS5pbnNlcnRBZGphY2VudEhUTUwoImJlZm9yZWVuZCIsCiAgICAgICAgYDxkaXYgY2xhc3M9Iml0ZW0iPjxiPmNsaXAke1N0cmluZyhpICsgMSkucGFkU3RhcnQoMiwgIjAiKX08L2I+ICgke2R1ci50b0ZpeGVkKDEpfXMpPGJyPjxhdWRpbyBjb250cm9scyBzcmM9IiR7dXJsfSI+PC9hdWRpbz48L2Rpdj5gKTsKICAgIH0KICAgIHNldFN0YXR1cygidHRzLXN0YXR1cyIsIGDinIUgJHtzdGF0ZS5jbGlwcy5sZW5ndGh9IGNsaXAg4YCb4YCV4YC84YCuYCk7CiAgfSBjYXRjaCAoZSkgewogICAgc2V0U3RhdHVzKCJ0dHMtc3RhdHVzIiwgIuKdjCAiICsgZS5tZXNzYWdlLCB0cnVlKTsKICB9CiAgJCgiYnRuLXR0cyIpLmRpc2FibGVkID0gZmFsc2U7Cn0pOwoKLy8gLS0tLS0tLS0tLSBTdGVwIDRjOiB1cGxvYWQgcHJlLW1hZGUgY2xpcHMgKGZhbGxiYWNrKSAtLS0tLS0tLS0tCiQoImNsaXAtaW5wdXQiKS5hZGRFdmVudExpc3RlbmVyKCJjaGFuZ2UiLCBhc3luYyBlID0+IHsKICBjb25zdCBmaWxlcyA9IFsuLi5lLnRhcmdldC5maWxlc10uc29ydCgoYSwgYikgPT4gYS5uYW1lLmxvY2FsZUNvbXBhcmUoYi5uYW1lKSk7CiAgaWYgKCFmaWxlcy5sZW5ndGgpIHJldHVybjsKICBzdGF0ZS5jbGlwcyA9IFtdOyBzdGF0ZS5jbGlwRHVycyA9IFtdOwogICQoImNsaXBzLWxpc3QiKS5pbm5lckhUTUwgPSAiIjsKICB0cnkgewogICAgZm9yIChsZXQgaSA9IDA7IGkgPCBmaWxlcy5sZW5ndGg7IGkrKykgewogICAgICBjb25zdCBkdXIgPSBhd2FpdCBhdWRpb0R1cmF0aW9uKGZpbGVzW2ldKTsKICAgICAgc3RhdGUuY2xpcHMucHVzaChmaWxlc1tpXSk7CiAgICAgIHN0YXRlLmNsaXBEdXJzLnB1c2goZHVyKTsKICAgICAgY29uc3QgdXJsID0gVVJMLmNyZWF0ZU9iamVjdFVSTChmaWxlc1tpXSk7CiAgICAgICQoImNsaXBzLWxpc3QiKS5pbnNlcnRBZGphY2VudEhUTUwoImJlZm9yZWVuZCIsCiAgICAgICAgYDxkaXYgY2xhc3M9Iml0ZW0iPjxiPiR7ZXNjYXBlSHRtbChmaWxlc1tpXS5uYW1lKX08L2I+ICgke2R1ci50b0ZpeGVkKDEpfXMpPGJyPjxhdWRpbyBjb250cm9scyBzcmM9IiR7dXJsfSI+PC9hdWRpbz48L2Rpdj5gKTsKICAgIH0KICAgIHNldFN0YXR1cygidHRzLXN0YXR1cyIsIGDinIUgY2xpcCAke3N0YXRlLmNsaXBzLmxlbmd0aH0g4YCB4YCvIOGAkOGAhOGAuuGAleGAvOGAruGAuOGAleGAvOGArmApOwogIH0gY2F0Y2ggKGVycikgewogICAgc2V0U3RhdHVzKCJ0dHMtc3RhdHVzIiwgIuKdjCAiICsgZXJyLm1lc3NhZ2UsIHRydWUpOwogIH0KfSk7CgovLyAtLS0tLS0tLS0tIFN0ZXAgNTogcmVuZGVyIC0tLS0tLS0tLS0KJCgiYnRuLXJlbmRlciIpLmFkZEV2ZW50TGlzdGVuZXIoImNsaWNrIiwgYXN5bmMgKCkgPT4gewogIGlmICghc3RhdGUudmlkZW9GaWxlKSByZXR1cm4gYWxlcnQoIuGAoeGAm+GAhOGAuiB2aWRlbyDhgJvhgL3hgLHhgLjhgJXhgKsiKTsKICBpZiAoIXN0YXRlLnNlZ21lbnRzLmxlbmd0aCkgcmV0dXJuIGFsZXJ0KCLhgKHhgJvhgIThgLogdHJhbnNjcmliZSDhgJzhgK/hgJXhgLrhgJXhgKsiKTsKICBpZiAoIXN0YXRlLmNsaXBzLmxlbmd0aCB8fCBzdGF0ZS5jbGlwcy5sZW5ndGggIT09IHN0YXRlLnNlZ21lbnRzLmxlbmd0aCkKICAgIHJldHVybiBhbGVydCgiVFRTIOGAoeGAm+GAhOGAuiDhgJXhgLzhgK7hgLjhgKHhgLHhgKzhgIThgLog4YCc4YCv4YCV4YC64YCV4YCrIik7CiAgY29uc3QgZ2FwU3BlZWQgPSBwYXJzZUZsb2F0KCQoImdhcC1zcGVlZCIpLnZhbHVlKTsKICAkKCJidG4tcmVuZGVyIikuZGlzYWJsZWQgPSB0cnVlOwogICQoInJlbmRlci1wcm9ncmVzcy13cmFwIikuc3R5bGUuZGlzcGxheSA9ICJibG9jayI7CiAgJCgiYnRuLWRvd25sb2FkIikuc3R5bGUuZGlzcGxheSA9ICJub25lIjsKICAkKCJvdXRwdXQtcHJldmlldyIpLnN0eWxlLmRpc3BsYXkgPSAibm9uZSI7CiAgdHJ5IHsKICAgIGNvbnN0IG91dEJsb2IgPSBhd2FpdCBzbWFydFJlbmRlcih7CiAgICAgIHZpZGVvRmlsZTogc3RhdGUudmlkZW9GaWxlLAogICAgICBzZWdtZW50czogc3RhdGUuc2VnbWVudHMsCiAgICAgIGNsaXBzOiBzdGF0ZS5jbGlwcywKICAgICAgY2xpcER1cnM6IHN0YXRlLmNsaXBEdXJzLAogICAgICBnYXBTcGVlZCwKICAgICAgZnBzOiAzMCwKICAgICAgdmR1cjogc3RhdGUuZHVyYXRpb24sCiAgICAgIG9uUHJvZ3Jlc3M6IChwLCBtc2cpID0+IHsKICAgICAgICAkKCJyZW5kZXItcHJvZ3Jlc3MtZmlsbCIpLnN0eWxlLndpZHRoID0gKHAgKiAxMDApLnRvRml4ZWQoMCkgKyAiJSI7CiAgICAgICAgc2V0U3RhdHVzKCJyZW5kZXItc3RhdHVzIiwgYCR7KHAgKiAxMDApLnRvRml4ZWQoMCl9JSDigJQgJHttc2d9YCk7CiAgICAgIH0sCiAgICB9KTsKICAgIGNvbnN0IHVybCA9IFVSTC5jcmVhdGVPYmplY3RVUkwob3V0QmxvYik7CiAgICAkKCJvdXRwdXQtcHJldmlldyIpLnNyYyA9IHVybDsKICAgICQoIm91dHB1dC1wcmV2aWV3Iikuc3R5bGUuZGlzcGxheSA9ICJibG9jayI7CiAgICBjb25zdCBkbCA9ICQoImJ0bi1kb3dubG9hZCIpOwogICAgZGwuaHJlZiA9IHVybDsKICAgIGRsLnN0eWxlLmRpc3BsYXkgPSAiYmxvY2siOwogICAgc2V0U3RhdHVzKCJyZW5kZXItc3RhdHVzIiwgIvCfjokg4YCV4YC84YCu4YC44YCV4YC84YCuISBEb3dubG9hZCDhgIbhgL3hgLLhgJXhgKsiKTsKICB9IGNhdGNoIChlKSB7CiAgICBzZXRTdGF0dXMoInJlbmRlci1zdGF0dXMiLCAi4p2MICIgKyBlLm1lc3NhZ2UsIHRydWUpOwogIH0KICAkKCJidG4tcmVuZGVyIikuZGlzYWJsZWQgPSBmYWxzZTsKfSk7CgpmdW5jdGlvbiBlc2NhcGVIdG1sKHMpIHsKICByZXR1cm4gU3RyaW5nKHMpLnJlcGxhY2UoLyYvZywgIiZhbXA7IikucmVwbGFjZSgvPC9nLCAiJmx0OyIpLnJlcGxhY2UoLz4vZywgIiZndDsiKTsKfQo=
+// Dubbing Studio v3 — on-device pipeline orchestration
+import { getFFmpeg } from "./ffmpeg.js";
+import { extractAudio, transcribeAssemblyAI, segmentsFromWords } from "./transcribe.js";
+import { edgeTTS } from "./tts.js";
+import { smartRender } from "./render.js";
+
+const $ = id => document.getElementById(id);
+
+const state = {
+  videoFile: null,
+  duration: 0,
+  segments: [],
+  translations: [],
+  clips: [],
+  clipDurs: [],
+};
+
+function setStatus(id, msg, isErr = false) {
+  const el = $(id);
+  el.textContent = msg;
+  el.classList.toggle("err", isErr);
+}
+
+// ---------- Engine preload (background, with progress — not blocking transcribe) ----------
+getFFmpeg((frac, label) => {
+  const e = $("engine-status");
+  if (frac >= 1) { e.textContent = "✅ Engine အဆင်သင့်"; e.classList.add("ok"); }
+  else e.textContent = `⏳ ${label} ${Math.round(frac * 100)}%`;
+}).catch(e => { $("engine-status").textContent = "❌ Engine တင်မရဘူး: " + e.message; });
+
+// ---------- Step 1: video ----------
+$("video-input").addEventListener("change", e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  state.videoFile = f;
+  const url = URL.createObjectURL(f);
+  const v = $("video-preview");
+  v.src = url;
+  v.style.display = "block";
+  v.onloadedmetadata = () => {
+    state.duration = v.duration;
+    $("video-info").textContent = `⏱️ ${v.duration.toFixed(1)}s — ${f.name}`;
+  };
+});
+
+// ---------- Step 2: transcribe ----------
+$("aai-key").value = localStorage.getItem("aai_key") || "";
+
+$("btn-transcribe").addEventListener("click", async () => {
+  const key = $("aai-key").value.trim();
+  if (!key) return setStatus("transcribe-status", "API Key ထည့်ပါ", true);
+  if (!state.videoFile) return setStatus("transcribe-status", "အရင် video ရွေးပါ", true);
+  localStorage.setItem("aai_key", key);
+  $("btn-transcribe").disabled = true;
+  try {
+    setStatus("transcribe-status", "🎵 Audio ထုတ်နေတယ် (ဖုန်းပေါ်မှာ)...");
+    const audioBlob = await extractAudio(state.videoFile);
+    const tj = await transcribeAssemblyAI(audioBlob, key, m => setStatus("transcribe-status", m));
+    let segs = [];
+    if (tj.utterances && tj.utterances.length) {
+      segs = tj.utterances.map(u => ({ start: u.start / 1000, end: u.end / 1000, text: u.text }));
+    } else if (tj.words && tj.words.length) {
+      segs = segmentsFromWords(tj.words);
+    }
+    if (!segs.length) throw new Error("Segment မရဘူး — အသံ မပါလို့ဖြစ်နိုင်တယ်");
+    state.segments = segs;
+    setStatus("transcribe-status", `✅ ${segs.length} segment ရပြီ`);
+    renderSegments();
+    buildPrompt();
+  } catch (e) {
+    setStatus("transcribe-status", "❌ " + e.message, true);
+  }
+  $("btn-transcribe").disabled = false;
+});
+
+function renderSegments() {
+  $("segments-list").innerHTML = state.segments.map((s, i) =>
+    `<div class="item"><b>${i + 1}</b> [${s.start.toFixed(1)}–${s.end.toFixed(1)}s] ${escapeHtml(s.text)}</div>`
+  ).join("");
+}
+
+// ---------- Step 3: prompt ----------
+function buildPrompt() {
+  const lines = state.segments.map((s, i) => {
+    const dur = Math.round((s.end - s.start) * 10) / 10;
+    const maxc = Math.max(10, Math.round(dur * 8));
+    return `ID: ${i} | Duration: ${dur}s | MaxChars: ${maxc} | Text: "${s.text}"`;
+  });
+  $("prompt-text").value =
+    "You are a professional Chinese-to-Burmese dubbing translator. " +
+    "Translate each line into natural SPOKEN Burmese (စကားပြောဘာသာ), " +
+    "the way a Burmese movie-recap narrator speaks — warm, lively, natural. " +
+    "Do NOT translate word-for-word.\n\n" +
+    "RULES:\n" +
+    "(1) Full meaning must survive — never drop key info, rephrase tighter.\n" +
+    "(2) Must sound like natural spoken Burmese, never chopped.\n" +
+    "(3) Each line must fit within its MaxChars.\n" +
+    "(4) Keep names consistent.\n\n" +
+    'Return STRICTLY as JSON: {"translations": ["...", ...]} ' +
+    "in the same order. Myanmar script ONLY.\n\n" +
+    "Inputs:\n" + lines.join("\n");
+}
+
+$("btn-copy-prompt").addEventListener("click", async () => {
+  const t = $("prompt-text").value;
+  if (!t) return;
+  try { await navigator.clipboard.writeText(t); }
+  catch (e) {
+    $("prompt-text").select();
+    document.execCommand("copy");
+  }
+  alert("Copy ကူးပြီးပြီ ✅ — Gemini မှာ paste လုပ်ပါ");
+});
+
+// ---------- Step 4: parse translation ----------
+function parseTranslations(raw) {
+  let t = raw.trim().replace(/^```(?:json)?\s*/, "").replace(/\s*```$/, "");
+  try {
+    const j = JSON.parse(t);
+    if (Array.isArray(j)) return j.map(String);
+    if (j && Array.isArray(j.translations)) return j.translations.map(String);
+  } catch (e) {}
+  const m = t.match(/\{[\s\S]*?"translations"[\s\S]*?\}/);
+  if (m) {
+    try {
+      const j = JSON.parse(m[0]);
+      if (j && Array.isArray(j.translations)) return j.translations.map(String);
+    } catch (e) {}
+  }
+  const arr = t.match(/\[[\s\S]*\]/);
+  if (arr) {
+    try {
+      const j = JSON.parse(arr[0]);
+      if (Array.isArray(j)) return j.map(String);
+    } catch (e) {}
+  }
+  return null;
+}
+
+$("btn-parse").addEventListener("click", () => {
+  const trs = parseTranslations($("trans-json").value);
+  if (!trs) return setStatus("tts-status", "JSON ဖတ်မရဘူး — Gemini output အမှန် paste လုပ်ပါ", true);
+  state.translations = trs;
+  $("trans-list").innerHTML = trs.map((t, i) =>
+    `<div class="item"><b>${i + 1}</b> ${escapeHtml(t)}</div>`).join("");
+  if (state.segments.length && trs.length !== state.segments.length) {
+    setStatus("tts-status", `⚠️ လိုင်း ${trs.length} vs segment ${state.segments.length} — မကိုက်ဘူး`, true);
+  } else {
+    setStatus("tts-status", `✅ ${trs.length} လိုင်း အဆင်သင့်`);
+  }
+});
+
+// ---------- Step 4b: TTS ----------
+let actx = null;
+async function audioDuration(blob) {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === "suspended") await actx.resume();
+  const buf = await actx.decodeAudioData(await blob.arrayBuffer());
+  return buf.duration;
+}
+
+$("btn-tts").addEventListener("click", async () => {
+  if (!state.translations.length) return setStatus("tts-status", "အရင် translation paste လုပ်ပါ", true);
+  const voice = $("voice-select").value;
+  $("btn-tts").disabled = true;
+  state.clips = []; state.clipDurs = [];
+  $("clips-list").innerHTML = "";
+  try {
+    for (let i = 0; i < state.translations.length; i++) {
+      setStatus("tts-status", `🔊 ${i + 1}/${state.translations.length} ထုတ်နေတယ်...`);
+      const blob = await edgeTTS(state.translations[i], voice);
+      const dur = await audioDuration(blob);
+      state.clips.push(blob);
+      state.clipDurs.push(dur);
+      const url = URL.createObjectURL(blob);
+      $("clips-list").insertAdjacentHTML("beforeend",
+        `<div class="item"><b>clip${String(i + 1).padStart(2, "0")}</b> (${dur.toFixed(1)}s)<br><audio controls src="${url}"></audio></div>`);
+    }
+    setStatus("tts-status", `✅ ${state.clips.length} clip ရပြီ`);
+  } catch (e) {
+    setStatus("tts-status", "❌ " + e.message, true);
+  }
+  $("btn-tts").disabled = false;
+});
+
+// ---------- Step 4c: upload pre-made clips (fallback) ----------
+$("clip-input").addEventListener("change", async e => {
+  const files = [...e.target.files].sort((a, b) => a.name.localeCompare(b.name));
+  if (!files.length) return;
+  state.clips = []; state.clipDurs = [];
+  $("clips-list").innerHTML = "";
+  try {
+    for (let i = 0; i < files.length; i++) {
+      const dur = await audioDuration(files[i]);
+      state.clips.push(files[i]);
+      state.clipDurs.push(dur);
+      const url = URL.createObjectURL(files[i]);
+      $("clips-list").insertAdjacentHTML("beforeend",
+        `<div class="item"><b>${escapeHtml(files[i].name)}</b> (${dur.toFixed(1)}s)<br><audio controls src="${url}"></audio></div>`);
+    }
+    setStatus("tts-status", `✅ clip ${state.clips.length} ခု တင်ပြီးပြီ`);
+  } catch (err) {
+    setStatus("tts-status", "❌ " + err.message, true);
+  }
+});
+
+// ---------- Step 5: render ----------
+$("btn-render").addEventListener("click", async () => {
+  if (!state.videoFile) return alert("အရင် video ရွေးပါ");
+  if (!state.segments.length) return alert("အရင် transcribe လုပ်ပါ");
+  if (!state.clips.length || state.clips.length !== state.segments.length)
+    return alert("TTS အရင် ပြီးအောင် လုပ်ပါ");
+  const gapSpeed = parseFloat($("gap-speed").value);
+  $("btn-render").disabled = true;
+  $("render-progress-wrap").style.display = "block";
+  $("btn-download").style.display = "none";
+  $("output-preview").style.display = "none";
+  try {
+    const outBlob = await smartRender({
+      videoFile: state.videoFile,
+      segments: state.segments,
+      clips: state.clips,
+      clipDurs: state.clipDurs,
+      gapSpeed,
+      fps: 30,
+      vdur: state.duration,
+      onProgress: (p, msg) => {
+        $("render-progress-fill").style.width = (p * 100).toFixed(0) + "%";
+        setStatus("render-status", `${(p * 100).toFixed(0)}% — ${msg}`);
+      },
+    });
+    const url = URL.createObjectURL(outBlob);
+    $("output-preview").src = url;
+    $("output-preview").style.display = "block";
+    const dl = $("btn-download");
+    dl.href = url;
+    dl.style.display = "block";
+    setStatus("render-status", "🎉 ပြီးပြီ! Download ဆွဲပါ");
+  } catch (e) {
+    setStatus("render-status", "❌ " + e.message, true);
+  }
+  $("btn-render").disabled = false;
+});
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
