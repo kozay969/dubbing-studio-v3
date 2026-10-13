@@ -1,7 +1,7 @@
 // Dubbing Studio v3 — on-device pipeline orchestration
 import { getFFmpeg } from "./ffmpeg.js";
 import { extractAudio, transcribeAssemblyAI, segmentsFromWords } from "./transcribe.js";
-import { edgeTTS, googleTTS } from "./tts.js";
+import { edgeTTS, googleTTS, geminiTTS } from "./tts.js";
 import { smartRender } from "./render.js";
 
 const $ = id => document.getElementById(id);
@@ -172,6 +172,8 @@ $("btn-tts").addEventListener("click", async () => {
       let blob;
       if (voice === "google-my") {
         blob = await googleTTS(state.translations[i]);
+      } else if (voice === "gemini-my") {
+        blob = await geminiTTS(state.translations[i]);
       } else {
         blob = await edgeTTS(state.translations[i], voice);
       }
@@ -277,6 +279,14 @@ $("btn-save-worker").addEventListener("click", () => {
   const u = $("worker-url").value.trim();
   localStorage.setItem("gtts_worker", u);
   setStatus("tts-status", u ? "✅ Worker URL သိမ်းပြီးပြီ" : "Worker URL ဖျက်ပြီးပြီ");
+});
+
+// ---------- Gemini API Key ----------
+$("gemini-key").value = localStorage.getItem("gemini_key") || "";
+$("btn-save-gemini").addEventListener("click", () => {
+  const k = $("gemini-key").value.trim();
+  localStorage.setItem("gemini_key", k);
+  setStatus("tts-status", k ? "✅ Gemini Key သိမ်းပြီးပြီ" : "Gemini Key ဖျက်ပြီးပြီ");
 });
 
 // ---------- Step 4c: upload pre-made clips (fallback) ----------
