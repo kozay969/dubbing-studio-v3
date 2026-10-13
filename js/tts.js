@@ -51,7 +51,47 @@ export const VOICES = {
   thiha: "my-MM-ThihaNeural",
   nilar: "my-MM-NilarNeural",
   google: "google-my",
+  gemini: "gemini-my",
 };
+
+// Gemini TTS via API (Burmese supported, free tier)
+// API key saved in localStorage("gemini_key")
+export async function geminiTTS(text) {
+  const key = localStorage.getItem("gemini_key") || "";
+  if (!key) throw new Error("Gemini API Key မထည့်ရသေးဘူး — အောက်က Settings မှာ ထည့်");
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=" + encodeURIComponent(key);
+  const body = {
+    contents: [{ parts: [{ text: "Say in Burmese: " + text }] }],
+    generationConfig: {
+      responseModalities: ["AUDIO"],
+      speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } },
+    },
+  };
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) {
+    const t = await r.text().catch(() => "");
+    throw new Error("Gemini TTS failed (" + r.status + ") " + t.slice(0, 100));
+  }
+  const j = await r.json();
+  const b64 = j?.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+  if (!b64) throw new Error("Gemini TTS: အသံ မရဘူး");
+  // PCM 24kHz 16-bit mono → WAV
+  const pcm = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  const wav = new Uint8Array(44 + pcm.length);
+  const dv = new DataView(wav.buffer);
+  const ws = (o, s) => { for (let i = 0; i < s.length; i++) wav[o + i] = s.charCodeAt(i); };
+  ws(0, "RIFF"); dv.setUint32(4, 36 + pcm.length, true); ws(8, "WAVE");
+  ws(12, "fmt "); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true);
+  dv.setUint16(22, 1, true); dv.setUint32(24, 24000, true);
+  dv.setUint32(28, 48000, true); dv.setUint16(32, 2, true); dv.setUint16(34, 16, true);
+  ws(36, "data"); dv.setUint32(40, pcm.length, true);
+  wav.set(pcm, 44);
+  return new Blob([wav], { type: "audio/wav" });
+}
 
 // Google Translate TTS via Cloudflare Worker proxy (CORS)
 // Worker URL saved in localStorage("gtts_worker")
