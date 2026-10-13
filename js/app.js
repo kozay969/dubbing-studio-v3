@@ -1,7 +1,7 @@
 // Dubbing Studio v3 — on-device pipeline orchestration
 import { getFFmpeg } from "./ffmpeg.js";
 import { extractAudio, transcribeAssemblyAI, segmentsFromWords } from "./transcribe.js";
-import { edgeTTS } from "./tts.js";
+import { edgeTTS, googleTTS } from "./tts.js";
 import { smartRender } from "./render.js";
 
 const $ = id => document.getElementById(id);
@@ -162,13 +162,23 @@ async function audioDuration(blob) {
 $("btn-tts").addEventListener("click", async () => {
   if (!state.translations.length) return setStatus("tts-status", "အရင် translation paste လုပ်ပါ", true);
   const voice = $("voice-select").value;
+  const speed = parseFloat($("speed-slider").value);
   $("btn-tts").disabled = true;
   state.clips = []; state.clipDurs = [];
   $("clips-list").innerHTML = "";
   try {
     for (let i = 0; i < state.translations.length; i++) {
       setStatus("tts-status", `🔊 ${i + 1}/${state.translations.length} ထုတ်နေတယ်...`);
-      const blob = await edgeTTS(state.translations[i], voice);
+      let blob;
+      if (voice === "google-my") {
+        blob = await googleTTS(state.translations[i]);
+      } else {
+        blob = await edgeTTS(state.translations[i], voice);
+      }
+      // Apply speed if not 1.0
+      if (Math.abs(speed - 1.0) >= 0.01) {
+        blob = await changeSpeed(blob, speed);
+      }
       const dur = await audioDuration(blob);
       state.clips.push(blob);
       state.clipDurs.push(dur);
@@ -181,6 +191,92 @@ $("btn-tts").addEventListener("click", async () => {
     setStatus("tts-status", "❌ " + e.message, true);
   }
   $("btn-tts").disabled = false;
+});
+
+// ---------- Speed control ----------
+$("speed-slider").addEventListener("input", e => {
+  $("speed-val").textContent = parseFloat(e.target.value).toFixed(1) + "x";
+});
+
+async function changeSpeed(blob, speed) {
+  if (Math.abs(speed - 1.0) < 0.01) return blob;
+  const ab = await blob.arrayBuffer();
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === "suspended") await actx.resume();
+  const buf = await actx.decodeAudioData(ab);
+  const newLen = Math.max(1, Math.floor(buf.length / speed));
+  const off = new OfflineAudioContext(buf.numberOfChannels, newLen, buf.sampleRate);
+  const src = off.createBufferSource();
+  src.buffer = buf;
+  src.playbackRate.value = speed;
+  src.connect(off.destination);
+  src.start();
+  const out = await off.startRendering();
+  // Encode to WAV
+  const wav = encodeWAV(out);
+  return new Blob([wav], { type: "audio/wav" });
+}
+
+function encodeWAV(audioBuffer) {
+  const numCh = audioBuffer.numberOfChannels;
+  const sr = audioBuffer.sampleRate;
+  const len = audioBuffer.length;
+  const bytes = 44 + len * numCh * 2;
+  const ab = new ArrayBuffer(bytes);
+  const v = new DataView(ab);
+  const ws = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  ws(0, "RIFF"); v.setUint32(4, bytes - 8, true); ws(8, "WAVE"); ws(12, "fmt ");
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, numCh, true);
+  v.setUint32(24, sr, true); v.setUint32(28, sr * numCh * 2, true);
+  v.setUint16(32, numCh * 2, true); v.setUint16(34, 16, true); ws(36, "data");
+  v.setUint32(40, len * numCh * 2, true);
+  let off = 44;
+  const chans = [];
+  for (let c = 0; c < numCh; c++) chans.push(audioBuffer.getChannelData(c));
+  for (let i = 0; i < len; i++) {
+    for (let c = 0; c < numCh; c++) {
+      const s = Math.max(-1, Math.min(1, chans[c][i]));
+      v.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      off += 2;
+    }
+  }
+  return ab;
+}
+
+$("btn-apply-speed").addEventListener("click", async () => {
+  if (!state.clips.length) return setStatus("tts-status", "အရင် TTS ထုတ် (သို့) MP3 တင်", true);
+  const speed = parseFloat($("speed-slider").value);
+  setStatus("tts-status", `⚡ Speed ${speed.toFixed(1)}x ပြောင်းနေတယ်...`);
+  try {
+    const newClips = [], newDurs = [];
+    for (let i = 0; i < state.clips.length; i++) {
+      const nb = await changeSpeed(state.clips[i], speed);
+      const dur = await audioDuration(nb);
+      newClips.push(nb); newDurs.push(dur);
+    }
+    state.clips = newClips; state.clipDurs = newDurs;
+    refreshClipsList();
+    setStatus("tts-status", `✅ Speed ${speed.toFixed(1)}x — ${newClips.length} clip`);
+  } catch (e) {
+    setStatus("tts-status", "❌ " + e.message, true);
+  }
+});
+
+function refreshClipsList() {
+  $("clips-list").innerHTML = "";
+  state.clips.forEach((blob, i) => {
+    const url = URL.createObjectURL(blob);
+    $("clips-list").insertAdjacentHTML("beforeend",
+      `<div class="item"><b>clip${String(i + 1).padStart(2, "0")}</b> (${state.clipDurs[i].toFixed(1)}s)<br><audio controls src="${url}"></audio></div>`);
+  });
+}
+
+// ---------- Google TTS Worker URL ----------
+$("worker-url").value = localStorage.getItem("gtts_worker") || "";
+$("btn-save-worker").addEventListener("click", () => {
+  const u = $("worker-url").value.trim();
+  localStorage.setItem("gtts_worker", u);
+  setStatus("tts-status", u ? "✅ Worker URL သိမ်းပြီးပြီ" : "Worker URL ဖျက်ပြီးပြီ");
 });
 
 // ---------- Step 4c: upload pre-made clips (fallback) ----------
