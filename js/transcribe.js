@@ -71,7 +71,7 @@ export async function extractAudio(videoFile) {
   }
 }
 
-export async function transcribeAssemblyAI(audioBlob, apiKey, onStatus) {
+export async function transcribeAssemblyAI(audioBlob, apiKey, onStatus, languageCode) {
   const H = { authorization: apiKey };
 
   onStatus("☁️ Audio upload...");
@@ -84,10 +84,16 @@ export async function transcribeAssemblyAI(audioBlob, apiKey, onStatus) {
   const { upload_url } = await up.json();
 
   onStatus("☁️ Transcribe တောင်းနေတယ်...");
+  const body = { audio_url: upload_url };
+  if (languageCode && languageCode !== "auto") {
+    body.language_code = languageCode;
+  } else {
+    body.language_detection = true;
+  }
   const tr = await fetch("https://api.assemblyai.com/v2/transcript", {
     method: "POST",
     headers: { ...H, "content-type": "application/json" },
-    body: JSON.stringify({ audio_url: upload_url, language_detection: true }),
+    body: JSON.stringify(body),
   });
   if (!tr.ok) throw new Error("Transcribe တောင်းမရဘူး (" + tr.status + ")");
   const { id } = await tr.json();
