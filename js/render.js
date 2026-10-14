@@ -89,51 +89,77 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
   doneExecs++;
   prog(doneExecs / totalExecs, "Concat ✅");
 
-  // 2b. blur subtitles (optional) + burn Burmese subtitles (optional)
+  // 2b. blur subtitles (optional)
   let vInput = "vret.mp4";
   const needBlur = blurRegion && blurRegion.h > 0.01;
   const needSubs = srtContent && srtContent.trim().length > 10;
 
-  if (needBlur || needSubs) {
-    // write SRT file if needed
-    if (needSubs) {
-      await safeDelete(ffmpeg, "subs.srt");
-      await ffmpeg.writeFile("subs.srt", srtContent);
-      // fetch Burmese font for libass (CDN — no repo bloat)
-      try {
-        const fr = await fetch("https://fonts.gstatic.com/s/notosansmyanmar/v27/AlZU_y1ZtY3ymOryg38hOCSdOnFq0FP9_gnYM_ME0QeqLzz8-kqmtY3KLEbEGTOZltU.ttf");
-        if (fr.ok) {
-          const fb = new Uint8Array(await fr.arrayBuffer());
-          try { await ffmpeg.createDir("/fonts"); } catch (e) {}
-          await ffmpeg.writeFile("/fonts/NotoSansMyanmar.ttf", fb);
-        }
-      } catch (e) { /* font fetch failed — subs may fall back */ }
-    }
-
-    prog(doneExecs / totalExecs, needBlur ? "စာတန်း blur + မြန်မာစာတန်း..." : "မြန်မာစာတန်း ထည့်နေတယ်...");
-    await safeDelete(ffmpeg, "vsub.mp4");
-
-    // build video filter chain
-    let vf;
-    if (needBlur) {
-      const by = Math.max(0, Math.min(0.95, blurRegion.y)).toFixed(4);
-      const bh = Math.max(0.02, Math.min(0.5, blurRegion.h)).toFixed(4);
-      vf = `split[a][b];[a]crop=iw:ih*${bh}:0:ih*${by},boxblur=20[bg];[b][bg]overlay=0:ih*${by}`;
-      if (needSubs) vf += `,subtitles=subs.srt:fontsdir='/fonts':force_style='FontName=Noto Sans Myanmar,FontSize=22,PrimaryColour=&H00FFFFFF,OutlineColour=&H80000000,BorderStyle=1,Outline=2,MarginV=25'`;
-    } else {
-      vf = `subtitles=subs.srt:fontsdir='/fonts':force_style='FontName=Noto Sans Myanmar,FontSize=22,PrimaryColour=&H00FFFFFF,OutlineColour=&H80000000,BorderStyle=1,Outline=2,MarginV=25'`;
-    }
-
-    const rc2 = await ffmpeg.exec([
+  if (needBlur) {
+    const by = Math.max(0, Math.min(0.95, blurRegion.y)).toFixed(4);
+    const bh = Math.max(0.02, Math.min(0.5, blurRegion.h)).toFixed(4);
+    prog(doneExecs / totalExecs, "စာတန်း blur လုပ်နေတယ်...");
+    await safeDelete(ffmpeg, "vblur.mp4");
+    const blurVf = `split[a][b];[a]crop=iw:ih*${bh}:0:ih*${by},boxblur=20[bg];[b][bg]overlay=0:ih*${by}`;
+    const rcb = await ffmpeg.exec([
       "-y", "-v", "error",
-      "-i", "vret.mp4",
-      "-filter:v", vf,
+      "-i", vInput,
+      "-filter:v", blurVf,
+      "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
+      "-an", "vblur.mp4",
+    ]);
+    if (rcb !== 0) throw new Error("Blur မအောင်မြင်ပါ");
+    vInput = "vblur.mp4";
+    prog(doneExecs / totalExecs, "Blur ✅");
+  }
+
+  // 2c. burn Burmese subtitles (optional) — via drawtext (per-line, libass-free)
+  if (needSubs) {
+    prog(doneExecs / totalExecs, "မြန်မာစာတန်း ထည့်နေတယ်...");
+    // fetch Burmese font
+    let fontOk = false;
+    try {
+      const fr = await fetch("https://fonts.gstatic.com/s/notosansmyanmar/v27/AlZU_y1ZtY3ymOryg38hOCSdOnFq0FP9_gnYM_ME0QeqLzz8-kqmtY3KLEbEGTOZltU.ttf");
+      if (fr.ok) {
+        const fb = new Uint8Array(await fr.arrayBuffer());
+        try { await ffmpeg.createDir("/fonts"); } catch (e) {}
+        await ffmpeg.writeFile("/fonts/NotoSansMyanmar.ttf", fb);
+        fontOk = true;
+      }
+    } catch (e) {}
+    if (!fontOk) throw new Error("Font ဒေါင်းလုဒ် မရဘူး — internet စစ်ပါ");
+
+    // build drawtext chain: one per subtitle line
+    const esc = s => s.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/:/g, "\\:").replace(/,/g, "\\,").replace(/\n/g, " ");
+    const draws = [];
+    let n = 0;
+    // parse SRT back into entries (srtContent built by buildSRT)
+    const blocks = srtContent.trim().split(/\n\s*\n/);
+    for (const b of blocks) {
+      const lines = b.trim().split("\n");
+      if (lines.length < 3) continue;
+      const tm = lines[1].match(/(\d+):(\d+):(\d+),(\d+)\s*-->\s*(\d+):(\d+):(\d+),(\d+)/);
+      if (!tm) continue;
+      const t1 = (+tm[1]) * 3600 + (+tm[2]) * 60 + (+tm[3]) + (+tm[4]) / 1000;
+      const t2 = (+tm[5]) * 3600 + (+tm[6]) * 60 + (+tm[7]) + (+tm[8]) / 1000;
+      const text = esc(lines.slice(2).join(" ").trim());
+      if (!text) continue;
+      n++;
+      draws.push(
+        `drawtext=fontfile=/fonts/NotoSansMyanmar.ttf:text='${text}':fontsize=44:fontcolor=white:borderw=3:bordercolor=black@0x99:x=(w-text_w)/2:y=h-120:enable='between(t,${t1.toFixed(2)},${t2.toFixed(2)})'`
+      );
+    }
+    if (!draws.length) throw new Error("စာတန်းထိုး စာသား မတွေ့ဘူး");
+    await safeDelete(ffmpeg, "vsub.mp4");
+    const rcs = await ffmpeg.exec([
+      "-y", "-v", "error",
+      "-i", vInput,
+      "-filter:v", draws.join(","),
       "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
       "-an", "vsub.mp4",
     ]);
-    if (rc2 !== 0) throw new Error("Subtitle/blur မအောင်မြင်ပါ");
+    if (rcs !== 0) throw new Error("စာတန်းထိုး မအောင်မြင်ပါ (drawtext)");
     vInput = "vsub.mp4";
-    prog(doneExecs / totalExecs, "✅");
+    prog(doneExecs / totalExecs, "စာတန်း ✅");
   }
 
   // 3. narration on retimed timeline
