@@ -509,8 +509,13 @@ $("blur-subs").addEventListener("change", e => {
   $("blur-controls").style.display = on ? "block" : "none";
   if (on && state.videoFile) {
     const pv = $("blur-preview");
-    if (!pv.src) pv.src = URL.createObjectURL(state.videoFile);
-    // position box after layout
+    if (!pv.src) {
+      pv.src = URL.createObjectURL(state.videoFile);
+      // show a frame once metadata loads (seek to 10% so subs likely visible)
+      pv.onloadedmetadata = () => {
+        try { pv.currentTime = Math.min(pv.duration * 0.1, 5); } catch (err) {}
+      };
+    }
     requestAnimationFrame(updateBlurBox);
   }
 });
