@@ -3,6 +3,7 @@ import { getFFmpeg } from "./ffmpeg.js";
 import { extractAudio, transcribeAssemblyAI, segmentsFromWords } from "./transcribe.js";
 import { edgeTTS, googleTTS, geminiTTS, serverTTS } from "./tts.js";
 import { smartRender } from "./render.js";
+import { computePeaks, drawWaveform, attachWaveform } from "./waveform.js";
 
 const $ = id => document.getElementById(id);
 
@@ -13,6 +14,11 @@ const state = {
   translations: [],
   clips: [],
   clipDurs: [],
+  audioBlob: null,   // extracted audio (for waveform)
+  wavePeaks: null,   // Float32Array
+  waveDur: 0,
+  waveSel: -1,
+  segmentsOrig: [],  // pristine copy for reset
 };
 
 function setStatus(id, msg, isErr = false) {
@@ -55,6 +61,7 @@ $("btn-transcribe").addEventListener("click", async () => {
   try {
     setStatus("transcribe-status", "🎵 Audio ထုတ်နေတယ် (ဖုန်းပေါ်မှာ)...");
     const audioBlob = await extractAudio(state.videoFile);
+    state.audioBlob = audioBlob;
     const tj = await transcribeAssemblyAI(audioBlob, key, m => setStatus("transcribe-status", m));
     let segs = [];
     if (tj.utterances && tj.utterances.length) {
@@ -64,9 +71,12 @@ $("btn-transcribe").addEventListener("click", async () => {
     }
     if (!segs.length) throw new Error("Segment မရဘူး — အသံ မပါလို့ဖြစ်နိုင်တယ်");
     state.segments = segs;
+    state.segmentsOrig = segs.map(s => ({ ...s }));
+    state.waveSel = -1;
     setStatus("transcribe-status", `✅ ${segs.length} segment ရပြီ`);
     renderSegments();
     buildPrompt();
+    initWaveform();
   } catch (e) {
     setStatus("transcribe-status", "❌ " + e.message, true);
   }
@@ -78,6 +88,67 @@ function renderSegments() {
     `<div class="item"><b>${i + 1}</b> [${s.start.toFixed(1)}–${s.end.toFixed(1)}s] ${escapeHtml(s.text)}</div>`
   ).join("");
 }
+
+// ---------- Waveform ----------
+let waveAttached = false;
+
+async function initWaveform() {
+  const wrap = $("waveform-wrap");
+  if (!state.audioBlob) { wrap.style.display = "none"; return; }
+  try {
+    setStatus("transcribe-status", "🌊 Waveform ဆွဲနေတယ်...");
+    const { peaks, duration } = await computePeaks(state.audioBlob);
+    state.wavePeaks = peaks;
+    state.waveDur = duration;
+    wrap.style.display = "block";
+    redrawWaveform();
+    if (!waveAttached) {
+      waveAttached = true;
+      attachWaveform($("waveform"),
+        () => ({ duration: state.waveDur, segments: state.segments, selectedIdx: state.waveSel }),
+        (newSegs, selIdx) => {
+          if (newSegs) {
+            state.segments = newSegs;
+            renderSegments();
+            buildPrompt(); // keep prompt in sync with adjusted timing
+          }
+          state.waveSel = selIdx;
+          updateWaveSelInfo();
+          redrawWaveform();
+        });
+    }
+    setStatus("transcribe-status", `✅ ${state.segments.length} segment ရပြီ — waveform နဲ့ timing ညှိလို့ရပြီ`);
+  } catch (e) {
+    wrap.style.display = "none";
+    // waveform is optional — don't break the flow
+  }
+}
+
+function redrawWaveform() {
+  if (!state.wavePeaks) return;
+  drawWaveform($("waveform"), state.wavePeaks, state.waveDur, state.segments, state.waveSel);
+}
+
+function updateWaveSelInfo() {
+  const el = $("wave-sel-info");
+  if (state.waveSel >= 0 && state.segments[state.waveSel]) {
+    const s = state.segments[state.waveSel];
+    el.textContent = `#${state.waveSel + 1}: ${s.start.toFixed(1)}s – ${s.end.toFixed(1)}s`;
+  } else {
+    el.textContent = "Segment ကို ထိ/ဆွဲပြီး ညှိပါ";
+  }
+}
+
+$("btn-wave-reset").addEventListener("click", () => {
+  if (!state.segmentsOrig.length) return;
+  state.segments = state.segmentsOrig.map(s => ({ ...s }));
+  state.waveSel = -1;
+  renderSegments();
+  buildPrompt();
+  updateWaveSelInfo();
+  redrawWaveform();
+  setStatus("transcribe-status", "↩️ Timing မူလအတိုင်း ပြန်ထားပြီးပြီ");
+});
 
 // ---------- Step 3: prompt ----------
 function buildPrompt() {
