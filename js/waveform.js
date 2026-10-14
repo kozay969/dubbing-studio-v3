@@ -98,7 +98,8 @@ export function drawWaveform(canvas, peaks, duration, segments, selectedIdx) {
 // Attach touch + mouse interaction.
 // getState() -> { duration, segments, selectedIdx }
 // onChange(newSegments|null, selectedIdx) — newSegments null means selection only
-export function attachWaveform(canvas, getState, onChange) {
+// onEmptyTap(time) — tapped on area with no segment (for creating new segment)
+export function attachWaveform(canvas, getState, onChange, onEmptyTap) {
   let dragging = null; // { segIdx, edge: "start"|"end" }
   const HANDLE_PX = 16;
 
@@ -150,7 +151,11 @@ export function attachWaveform(canvas, getState, onChange) {
     const tc = e.touches[0];
     const h = findHandle(tc.clientX);
     if (h) { dragging = h; onChange(null, h.segIdx); }
-    else onChange(null, findSegment(tc.clientX));
+    else {
+      const si = findSegment(tc.clientX);
+      if (si >= 0) onChange(null, si);
+      else if (onEmptyTap) onEmptyTap(xToTime(tc.clientX));
+    }
   }, { passive: false });
 
   canvas.addEventListener("touchmove", e => {
@@ -167,7 +172,11 @@ export function attachWaveform(canvas, getState, onChange) {
   canvas.addEventListener("mousedown", e => {
     const h = findHandle(e.clientX);
     if (h) { dragging = h; onChange(null, h.segIdx); }
-    else onChange(null, findSegment(e.clientX));
+    else {
+      const si = findSegment(e.clientX);
+      if (si >= 0) onChange(null, si);
+      else if (onEmptyTap) onEmptyTap(xToTime(e.clientX));
+    }
   });
   canvas.addEventListener("mousemove", e => { if (dragging) applyDrag(e.clientX); });
   window.addEventListener("mouseup", () => { dragging = null; });
