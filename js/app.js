@@ -502,6 +502,7 @@ $("btn-render").addEventListener("click", async () => {
   if (!state.clips.length || state.clips.length !== state.segments.length)
     return alert("TTS အရင် ပြီးအောင် လုပ်ပါ");
   const gapSpeed = parseFloat($("gap-speed").value);
+  const blurSubs = $("blur-subs") ? $("blur-subs").checked : false;
   $("btn-render").disabled = true;
   $("render-progress-wrap").style.display = "block";
   $("btn-download").style.display = "none";
@@ -515,6 +516,7 @@ $("btn-render").addEventListener("click", async () => {
       gapSpeed,
       fps: 30,
       vdur: state.duration,
+      blurSubs,
       onProgress: (p, msg) => {
         $("render-progress-fill").style.width = (p * 100).toFixed(0) + "%";
         setStatus("render-status", `${(p * 100).toFixed(0)}% — ${msg}`);
