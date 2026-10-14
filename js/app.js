@@ -20,6 +20,7 @@ const state = {
   waveSel: -1,
   waveSplitTime: null, // last tap position inside selected segment
   segmentsOrig: [],  // pristine copy for reset
+  blurRegion: { y: 0.82, h: 0.18 }, // top-edge and height as fractions
 };
 
 function setStatus(id, msg, isErr = false) {
@@ -495,6 +496,85 @@ $("clip-input").addEventListener("change", async e => {
   }
 });
 
+// ---------- Step 5b: blur region controls ----------
+function updateBlurBox() {
+  const box = $("blur-box");
+  if (!box) return;
+  box.style.top = (state.blurRegion.y * 100).toFixed(1) + "%";
+  box.style.height = (state.blurRegion.h * 100).toFixed(1) + "%";
+}
+
+$("blur-subs").addEventListener("change", e => {
+  const on = e.target.checked;
+  $("blur-controls").style.display = on ? "block" : "none";
+  if (on && state.videoFile) {
+    const pv = $("blur-preview");
+    if (!pv.src) pv.src = URL.createObjectURL(state.videoFile);
+    // position box after layout
+    requestAnimationFrame(updateBlurBox);
+  }
+});
+
+// keep preview in sync when video selected
+$("video-input").addEventListener("change", () => {
+  const pv = $("blur-preview");
+  if (!pv) return;
+  pv.removeAttribute("src");
+  if ($("blur-subs") && $("blur-subs").checked && state.videoFile) {
+    pv.src = URL.createObjectURL(state.videoFile);
+    requestAnimationFrame(updateBlurBox);
+  }
+});
+
+$("blur-height").addEventListener("input", e => {
+  const h = parseInt(e.target.value, 10) / 100;
+  state.blurRegion.h = h;
+  // keep box inside video
+  if (state.blurRegion.y + h > 1) state.blurRegion.y = 1 - h;
+  $("blur-height-val").textContent = e.target.value + "%";
+  updateBlurBox();
+});
+
+// drag blur box vertically (touch + mouse)
+(function initBlurDrag() {
+  const box = $("blur-box"), wrap = $("blur-preview-wrap");
+  if (!box || !wrap) return;
+  let dragging = false, startY = 0, startTop = 0;
+  function topFromClient(clientY) {
+    const r = wrap.getBoundingClientRect();
+    const dy = (clientY - startY) / r.height;
+    let t = startTop + dy;
+    t = Math.max(0, Math.min(1 - state.blurRegion.h, t));
+    return t;
+  }
+  box.addEventListener("touchstart", e => {
+    e.preventDefault();
+    dragging = true;
+    startY = e.touches[0].clientY;
+    startTop = state.blurRegion.y;
+  }, { passive: false });
+  box.addEventListener("touchmove", e => {
+    if (!dragging) return;
+    e.preventDefault();
+    state.blurRegion.y = topFromClient(e.touches[0].clientY);
+    updateBlurBox();
+  }, { passive: false });
+  const endT = () => dragging = false;
+  box.addEventListener("touchend", endT);
+  box.addEventListener("touchcancel", endT);
+  box.addEventListener("mousedown", e => {
+    dragging = true;
+    startY = e.clientY;
+    startTop = state.blurRegion.y;
+  });
+  window.addEventListener("mousemove", e => {
+    if (!dragging) return;
+    state.blurRegion.y = topFromClient(e.clientY);
+    updateBlurBox();
+  });
+  window.addEventListener("mouseup", () => dragging = false);
+})();
+
 // ---------- Step 5: render ----------
 $("btn-render").addEventListener("click", async () => {
   if (!state.videoFile) return alert("အရင် video ရွေးပါ");
@@ -502,7 +582,8 @@ $("btn-render").addEventListener("click", async () => {
   if (!state.clips.length || state.clips.length !== state.segments.length)
     return alert("TTS အရင် ပြီးအောင် လုပ်ပါ");
   const gapSpeed = parseFloat($("gap-speed").value);
-  const blurSubs = $("blur-subs") ? $("blur-subs").checked : false;
+  const blurOn = $("blur-subs") ? $("blur-subs").checked : false;
+  const blurRegion = blurOn ? { ...state.blurRegion } : null;
   $("btn-render").disabled = true;
   $("render-progress-wrap").style.display = "block";
   $("btn-download").style.display = "none";
@@ -516,7 +597,7 @@ $("btn-render").addEventListener("click", async () => {
       gapSpeed,
       fps: 30,
       vdur: state.duration,
-      blurSubs,
+      blurRegion,
       onProgress: (p, msg) => {
         $("render-progress-fill").style.width = (p * 100).toFixed(0) + "%";
         setStatus("render-status", `${(p * 100).toFixed(0)}% — ${msg}`);
