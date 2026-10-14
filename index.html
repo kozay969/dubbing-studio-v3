@@ -30,6 +30,16 @@
   <section class="card">
     <h2>2️⃣ 🎙️ စာသားထုတ် (AssemblyAI)</h2>
     <input type="password" id="aai-key" placeholder="AssemblyAI API Key" autocomplete="off">
+    <div class="row">
+      <label>🗣️ ဘာသာစကား:</label>
+      <select id="trans-lang">
+        <option value="auto">Auto (အလိုလို သိ)</option>
+        <option value="zh" selected>中文 Chinese</option>
+        <option value="th">ไทย Thai</option>
+        <option value="my">မြန်မာ</option>
+        <option value="en">English</option>
+      </select>
+    </div>
     <button id="btn-transcribe" class="primary">🚀 Transcribe</button>
     <div id="transcribe-status" class="status"></div>
     <div id="waveform-wrap" style="display:none">
@@ -37,6 +47,7 @@
       <canvas id="waveform" class="waveform"></canvas>
       <div class="row" style="margin-top:6px">
         <span id="wave-sel-info" class="info" style="flex:1">Segment ကို ထိ/ဆွဲပြီး ညှိပါ</span>
+        <button id="btn-wave-split" class="secondary" style="width:auto;padding:8px 14px;margin:0;display:none">✂️ ခွဲ</button>
         <button id="btn-wave-reset" class="secondary" style="width:auto;padding:8px 14px;margin:0">↩️ Reset</button>
       </div>
       <p class="hint">ခရမ်းရောင်ဘားအစ/အဆုံး ကို လက်နဲ့ဆွဲပြီး timing ပြင်လို့ရတယ် · အသံရှိပြီး segment မရှိတဲ့နေရာ ထိရင် အသစ်ထည့်လို့ရတယ်</p>
