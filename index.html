@@ -122,6 +122,18 @@
         📕 မူရင်းစာတန်းထိုး blur လုပ်
       </label>
     </div>
+    <div id="blur-controls" style="display:none">
+      <div id="blur-preview-wrap" style="position:relative;margin:8px 0;border-radius:12px;overflow:hidden;background:#000">
+        <video id="blur-preview" muted playsinline style="width:100%;display:block"></video>
+        <div id="blur-box" style="position:absolute;left:0;width:100%;background:rgba(108,92,231,0.25);border:2px dashed #a29bfe;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);touch-action:none;cursor:move;box-sizing:border-box"></div>
+      </div>
+      <div class="row">
+        <label>📏 အမြင့်:</label>
+        <input type="range" id="blur-height" min="5" max="40" value="18" style="flex:1">
+        <span id="blur-height-val">18%</span>
+      </div>
+      <p class="hint">💡 Blur box ကို အပေါ်/အောက် ဆွဲရွှေ့ပြီး စာတန်းနေရာမှာ ထားပါ</p>
+    </div>
     <button id="btn-render" class="primary big">🎬 Render စမယ်</button>
     <div id="render-progress-wrap" class="progress-wrap" style="display:none">
       <div class="progress-bar"><div id="render-progress-fill"></div></div>
