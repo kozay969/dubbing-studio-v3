@@ -85,8 +85,68 @@ $("btn-transcribe").addEventListener("click", async () => {
 
 function renderSegments() {
   $("segments-list").innerHTML = state.segments.map((s, i) =>
-    `<div class="item"><b>${i + 1}</b> [${s.start.toFixed(1)}–${s.end.toFixed(1)}s] ${escapeHtml(s.text)}</div>`
+    `<div class="item" data-seg="${i}"><b>${i + 1}</b> [${s.start.toFixed(1)}–${s.end.toFixed(1)}s] ${escapeHtml(s.text)}</div>`
   ).join("");
+}
+
+// Tap segment in list to edit its text (for manually added segments)
+$("segments-list").addEventListener("click", e => {
+  const el = e.target.closest("[data-seg]");
+  if (!el) return;
+  const i = parseInt(el.dataset.seg, 10);
+  const s = state.segments[i];
+  if (!s) return;
+  const v = prompt(`Segment ${i + 1} စာသား ပြင်ပါ:`, s.text);
+  if (v === null) return;
+  s.text = v.trim();
+  renderSegments();
+  buildPrompt();
+});
+
+// Auto-detect talking region around tapTime using waveform peaks
+function detectTalkingRegion(tapTime) {
+  const peaks = state.wavePeaks;
+  const dur = state.waveDur;
+  if (!peaks || !dur) return { start: Math.max(0, tapTime - 1), end: Math.min(dur, tapTime + 1) };
+  const n = peaks.length;
+  const TH = 0.10; // energy threshold for "talking"
+  const t2i = t => Math.max(0, Math.min(n - 1, Math.floor((t / dur) * n)));
+  let li = t2i(tapTime), ri = t2i(tapTime);
+  // expand left
+  while (li > 0 && peaks[li - 1] > TH) li--;
+  // expand right
+  while (ri < n - 1 && peaks[ri + 1] > TH) ri++;
+  // include the tap bar itself even if quiet (user tapped near sound)
+  const pad = Math.ceil((0.25 / dur) * n);
+  li = Math.max(0, li - pad);
+  ri = Math.min(n - 1, ri + pad);
+  const start = Math.round(((li / n) * dur) * 10) / 10;
+  const end = Math.round(((ri / n) * dur) * 10) / 10;
+  return { start: Math.max(0, start), end: Math.min(dur, Math.max(end, start + 0.5)) };
+}
+
+// Create a new segment at tapTime (for talking parts AssemblyAI missed)
+function createSegmentAt(tapTime) {
+  const { start, end } = detectTalkingRegion(tapTime);
+  // don't create if it heavily overlaps an existing segment
+  for (const s of state.segments) {
+    const overlap = Math.min(end, s.end) - Math.max(start, s.start);
+    if (overlap > (end - start) * 0.5) {
+      setStatus("transcribe-status", "⚠️ ဒီနေရာမှာ segment ရှိနေပြီးသား", true);
+      return;
+    }
+  }
+  const text = prompt("Segment အသစ် — စာသား ရိုက်ထည့်ပါ (Chinese/မြန်မာ):", "");
+  if (text === null) return; // cancelled
+  const seg = { start, end, text: text.trim() || "(စာသား မထည့်ရသေး — ထိပြီး ပြင်ပါ)" };
+  state.segments.push(seg);
+  state.segments.sort((a, b) => a.start - b.start);
+  state.waveSel = state.segments.indexOf(seg);
+  renderSegments();
+  buildPrompt();
+  updateWaveSelInfo();
+  redrawWaveform();
+  setStatus("transcribe-status", `✅ Segment အသစ် [${start.toFixed(1)}–${end.toFixed(1)}s] ထည့်ပြီးပြီ`);
 }
 
 // ---------- Waveform ----------
@@ -115,7 +175,8 @@ async function initWaveform() {
           state.waveSel = selIdx;
           updateWaveSelInfo();
           redrawWaveform();
-        });
+        },
+        (tapTime) => createSegmentAt(tapTime));
     }
     setStatus("transcribe-status", `✅ ${state.segments.length} segment ရပြီ — waveform နဲ့ timing ညှိလို့ရပြီ`);
   } catch (e) {
