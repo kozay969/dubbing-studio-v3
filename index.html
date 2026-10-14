@@ -32,6 +32,15 @@
     <input type="password" id="aai-key" placeholder="AssemblyAI API Key" autocomplete="off">
     <button id="btn-transcribe" class="primary">🚀 Transcribe</button>
     <div id="transcribe-status" class="status"></div>
+    <div id="waveform-wrap" style="display:none">
+      <h3 style="font-size:.95rem;margin:10px 0 6px">🌊 Waveform — timing ညှိ</h3>
+      <canvas id="waveform" class="waveform"></canvas>
+      <div class="row" style="margin-top:6px">
+        <span id="wave-sel-info" class="info" style="flex:1">Segment ကို ထိ/ဆွဲပြီး ညှိပါ</span>
+        <button id="btn-wave-reset" class="secondary" style="width:auto;padding:8px 14px;margin:0">↩️ Reset</button>
+      </div>
+      <p class="hint">ခရမ်းရောင်ဘားအစ/အဆုံး ကို လက်နဲ့ဆွဲပြီး timing ပြင်လို့ရတယ်</p>
+    </div>
     <div id="segments-list" class="list"></div>
   </section>
 
