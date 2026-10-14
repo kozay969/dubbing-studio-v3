@@ -580,6 +580,25 @@ $("blur-height").addEventListener("input", e => {
   window.addEventListener("mouseup", () => dragging = false);
 })();
 
+// Build SRT from segments + translations (for burning Burmese subs)
+function buildSRT() {
+  const fmt = t => {
+    t = Math.max(0, t);
+    const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60);
+    const s = Math.floor(t % 60), ms = Math.floor((t % 1) * 1000);
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")},${String(ms).padStart(3, "0")}`;
+  };
+  const out = [];
+  let n = 0;
+  state.segments.forEach((seg, i) => {
+    const text = (state.translations[i] || "").trim();
+    if (!text) return;
+    n++;
+    out.push(`${n}\n${fmt(seg.start)} --> ${fmt(seg.end)}\n${text}\n`);
+  });
+  return out.join("\n");
+}
+
 // ---------- Step 5: render ----------
 $("btn-render").addEventListener("click", async () => {
   if (!state.videoFile) return alert("အရင် video ရွေးပါ");
@@ -589,6 +608,19 @@ $("btn-render").addEventListener("click", async () => {
   const gapSpeed = parseFloat($("gap-speed").value);
   const blurOn = $("blur-subs") ? $("blur-subs").checked : false;
   const blurRegion = blurOn ? { ...state.blurRegion } : null;
+  const subsOn = $("mm-subs") ? $("mm-subs").checked : false;
+  let srtContent = null;
+  if (subsOn) {
+    if (!state.translations.length) {
+      alert("မြန်မာစာတန်းထိုးအတွက် အရင် translation paste လုပ်ပါ (Step 4)");
+      return;
+    }
+    srtContent = buildSRT();
+    if (!srtContent.trim()) {
+      alert("စာတန်းထိုး စာသား မရှိဘူး");
+      return;
+    }
+  }
   $("btn-render").disabled = true;
   $("render-progress-wrap").style.display = "block";
   $("btn-download").style.display = "none";
@@ -603,6 +635,7 @@ $("btn-render").addEventListener("click", async () => {
       fps: 30,
       vdur: state.duration,
       blurRegion,
+      srtContent,
       onProgress: (p, msg) => {
         $("render-progress-fill").style.width = (p * 100).toFixed(0) + "%";
         setStatus("render-status", `${(p * 100).toFixed(0)}% — ${msg}`);
