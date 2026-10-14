@@ -22,12 +22,12 @@ async function safeDelete(ffmpeg, name) {
   try { await ffmpeg.deleteFile(name); } catch (e) {}
 }
 
-export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpeed, fps = 30, vdur, onProgress }) {
+export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpeed, fps = 30, vdur, onProgress, blurSubs = false }) {
   const ffmpeg = await getFFmpeg();
   const prog = (p, msg) => onProgress && onProgress(Math.min(1, Math.max(0, p)), msg || "");
 
   // fresh workspace
-  for (const n of ["input.mp4", "pieces.txt", "vret.mp4", "dubbed.mp4"]) await safeDelete(ffmpeg, n);
+  for (const n of ["input.mp4", "pieces.txt", "vret.mp4", "vblur.mp4", "dubbed.mp4"]) await safeDelete(ffmpeg, n);
   await ffmpeg.writeFile("input.mp4", await fetchFile(videoFile));
   for (let i = 0; i < clips.length; i++) {
     await safeDelete(ffmpeg, `clip${i}.mp3`);
@@ -89,6 +89,25 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
   doneExecs++;
   prog(doneExecs / totalExecs, "Concat ✅");
 
+  // 2b. blur subtitles (optional) — blur bottom 18% where subs usually are
+  let vInput = "vret.mp4";
+  if (blurSubs) {
+    prog(doneExecs / totalExecs, "စာတန်း blur လုပ်နေတယ်...");
+    await safeDelete(ffmpeg, "vblur.mp4");
+    // crop bottom 18%, blur it, overlay back
+    const blurVf = "split[a][b];[a]crop=iw:ih*0.18:0:ih*0.82,boxblur=20[bg];[b][bg]overlay=0:ih*0.82";
+    rc = await ffmpeg.exec([
+      "-y", "-v", "error",
+      "-i", "vret.mp4",
+      "-filter:v", blurVf,
+      "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
+      "-an", "vblur.mp4",
+    ]);
+    if (rc !== 0) throw new Error("Blur မအောင်မြင်ပါ");
+    vInput = "vblur.mp4";
+    prog(doneExecs / totalExecs, "Blur ✅");
+  }
+
   // 3. narration on retimed timeline
   const clipInfos = [];
   let t = 0;
@@ -114,7 +133,7 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
   });
   parts.push(`${labels.join("")}amix=inputs=${labels.length}:duration=longest:dropout_transition=0:normalize=0[narr]`);
 
-  const args = ["-y", "-v", "error", "-i", "vret.mp4"];
+  const args = ["-y", "-v", "error", "-i", vInput];
   clipInfos.forEach(c => args.push("-i", `clip${c.idx}.mp3`));
   args.push(
     "-filter_complex", parts.join(";"),
