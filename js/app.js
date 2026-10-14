@@ -18,6 +18,7 @@ const state = {
   wavePeaks: null,   // Float32Array
   waveDur: 0,
   waveSel: -1,
+  waveSplitTime: null, // last tap position inside selected segment
   segmentsOrig: [],  // pristine copy for reset
 };
 
@@ -51,18 +52,21 @@ $("video-input").addEventListener("change", e => {
 
 // ---------- Step 2: transcribe ----------
 $("aai-key").value = localStorage.getItem("aai_key") || "";
+if ($("trans-lang")) $("trans-lang").value = localStorage.getItem("aai_lang") || "zh";
 
 $("btn-transcribe").addEventListener("click", async () => {
   const key = $("aai-key").value.trim();
   if (!key) return setStatus("transcribe-status", "API Key ထည့်ပါ", true);
   if (!state.videoFile) return setStatus("transcribe-status", "အရင် video ရွေးပါ", true);
   localStorage.setItem("aai_key", key);
+  const lang = $("trans-lang") ? $("trans-lang").value : "auto";
+  if ($("trans-lang")) localStorage.setItem("aai_lang", lang);
   $("btn-transcribe").disabled = true;
   try {
     setStatus("transcribe-status", "🎵 Audio ထုတ်နေတယ် (ဖုန်းပေါ်မှာ)...");
     const audioBlob = await extractAudio(state.videoFile);
     state.audioBlob = audioBlob;
-    const tj = await transcribeAssemblyAI(audioBlob, key, m => setStatus("transcribe-status", m));
+    const tj = await transcribeAssemblyAI(audioBlob, key, m => setStatus("transcribe-status", m), lang);
     let segs = [];
     if (tj.utterances && tj.utterances.length) {
       segs = tj.utterances.map(u => ({ start: u.start / 1000, end: u.end / 1000, text: u.text }));
@@ -149,6 +153,51 @@ function createSegmentAt(tapTime) {
   setStatus("transcribe-status", `✅ Segment အသစ် [${start.toFixed(1)}–${end.toFixed(1)}s] ထည့်ပြီးပြီ`);
 }
 
+// Split selected segment into two at tap position (or middle)
+function splitSelectedSegment() {
+  const i = state.waveSel;
+  if (i < 0 || !state.segments[i]) return;
+  const s = state.segments[i];
+  let cut = state.waveSplitTime;
+  if (!(cut > s.start + 0.3 && cut < s.end - 0.3)) {
+    cut = Math.round(((s.start + s.end) / 2) * 10) / 10;
+  }
+  cut = Math.round(cut * 10) / 10;
+
+  // split text proportionally by time; prefer splitting at a space
+  const text = s.text || "";
+  const ratio = (cut - s.start) / Math.max(0.01, s.end - s.start);
+  let cutChar = Math.floor(text.length * ratio);
+  // find nearest space within 12 chars for cleaner split
+  let best = cutChar;
+  for (let d = 0; d <= 12; d++) {
+    if (text[cutChar + d] === " " || text[cutChar + d] === "၊" || text[cutChar + d] === "။") { best = cutChar + d + 1; break; }
+    if (text[cutChar - d] === " " || text[cutChar - d] === "၊" || text[cutChar - d] === "။") { best = cutChar - d + 1; break; }
+  }
+  const textA = text.slice(0, best).trim();
+  const textB = text.slice(best).trim();
+
+  const segA = { start: s.start, end: cut, text: textA || "(စာသား — ထိပြီး ပြင်ပါ)" };
+  const segB = { start: cut, end: s.end, text: textB || "(စာသား — ထိပြီး ပြင်ပါ)" };
+  state.segments.splice(i, 1, segA, segB);
+  state.waveSel = i;
+  state.waveSplitTime = null;
+  renderSegments();
+  buildPrompt();
+  updateWaveSelInfo();
+  updateSplitBtn();
+  redrawWaveform();
+  setStatus("transcribe-status", `✂️ Segment ${i + 1} ကို ၂ ပိုင်း ခွဲပြီးပြီ [${segA.start.toFixed(1)}–${segA.end.toFixed(1)}s] + [${segB.start.toFixed(1)}–${segB.end.toFixed(1)}s]`);
+}
+
+function updateSplitBtn() {
+  const b = $("btn-wave-split");
+  if (!b) return;
+  b.style.display = state.waveSel >= 0 ? "" : "none";
+}
+
+$("btn-wave-split").addEventListener("click", splitSelectedSegment);
+
 // ---------- Waveform ----------
 let waveAttached = false;
 
@@ -166,14 +215,16 @@ async function initWaveform() {
       waveAttached = true;
       attachWaveform($("waveform"),
         () => ({ duration: state.waveDur, segments: state.segments, selectedIdx: state.waveSel }),
-        (newSegs, selIdx) => {
+        (newSegs, selIdx, tapTime) => {
           if (newSegs) {
             state.segments = newSegs;
             renderSegments();
             buildPrompt(); // keep prompt in sync with adjusted timing
           }
           state.waveSel = selIdx;
+          if (tapTime !== undefined && tapTime !== null) state.waveSplitTime = tapTime;
           updateWaveSelInfo();
+          updateSplitBtn();
           redrawWaveform();
         },
         (tapTime) => createSegmentAt(tapTime));
