@@ -22,7 +22,7 @@ async function safeDelete(ffmpeg, name) {
   try { await ffmpeg.deleteFile(name); } catch (e) {}
 }
 
-export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpeed, fps = 30, vdur, onProgress, blurSubs = false }) {
+export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpeed, fps = 30, vdur, onProgress, blurRegion = null }) {
   const ffmpeg = await getFFmpeg();
   const prog = (p, msg) => onProgress && onProgress(Math.min(1, Math.max(0, p)), msg || "");
 
@@ -89,13 +89,14 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
   doneExecs++;
   prog(doneExecs / totalExecs, "Concat ✅");
 
-  // 2b. blur subtitles (optional) — blur bottom 18% where subs usually are
+  // 2b. blur subtitles (optional) — adjustable region
   let vInput = "vret.mp4";
-  if (blurSubs) {
+  if (blurRegion && blurRegion.h > 0.01) {
+    const by = Math.max(0, Math.min(0.95, blurRegion.y)).toFixed(4);
+    const bh = Math.max(0.02, Math.min(0.5, blurRegion.h)).toFixed(4);
     prog(doneExecs / totalExecs, "စာတန်း blur လုပ်နေတယ်...");
     await safeDelete(ffmpeg, "vblur.mp4");
-    // crop bottom 18%, blur it, overlay back
-    const blurVf = "split[a][b];[a]crop=iw:ih*0.18:0:ih*0.82,boxblur=20[bg];[b][bg]overlay=0:ih*0.82";
+    const blurVf = `split[a][b];[a]crop=iw:ih*${bh}:0:ih*${by},boxblur=20[bg];[b][bg]overlay=0:ih*${by}`;
     rc = await ffmpeg.exec([
       "-y", "-v", "error",
       "-i", "vret.mp4",
