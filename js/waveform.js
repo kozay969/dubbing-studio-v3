@@ -153,7 +153,7 @@ export function attachWaveform(canvas, getState, onChange, onEmptyTap) {
     if (h) { dragging = h; onChange(null, h.segIdx); }
     else {
       const si = findSegment(tc.clientX);
-      if (si >= 0) onChange(null, si);
+      if (si >= 0) onChange(null, si, xToTime(tc.clientX));
       else if (onEmptyTap) onEmptyTap(xToTime(tc.clientX));
     }
   }, { passive: false });
@@ -174,7 +174,7 @@ export function attachWaveform(canvas, getState, onChange, onEmptyTap) {
     if (h) { dragging = h; onChange(null, h.segIdx); }
     else {
       const si = findSegment(e.clientX);
-      if (si >= 0) onChange(null, si);
+      if (si >= 0) onChange(null, si, xToTime(e.clientX));
       else if (onEmptyTap) onEmptyTap(xToTime(e.clientX));
     }
   });
