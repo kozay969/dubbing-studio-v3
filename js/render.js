@@ -22,12 +22,12 @@ async function safeDelete(ffmpeg, name) {
   try { await ffmpeg.deleteFile(name); } catch (e) {}
 }
 
-export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpeed, fps = 30, vdur, onProgress, blurRegion = null }) {
+export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpeed, fps = 30, vdur, onProgress, blurRegion = null, srtContent = null }) {
   const ffmpeg = await getFFmpeg();
   const prog = (p, msg) => onProgress && onProgress(Math.min(1, Math.max(0, p)), msg || "");
 
   // fresh workspace
-  for (const n of ["input.mp4", "pieces.txt", "vret.mp4", "vblur.mp4", "dubbed.mp4"]) await safeDelete(ffmpeg, n);
+  for (const n of ["input.mp4", "pieces.txt", "vret.mp4", "vsub.mp4", "subs.srt", "dubbed.mp4"]) await safeDelete(ffmpeg, n);
   await ffmpeg.writeFile("input.mp4", await fetchFile(videoFile));
   for (let i = 0; i < clips.length; i++) {
     await safeDelete(ffmpeg, `clip${i}.mp3`);
@@ -89,24 +89,51 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
   doneExecs++;
   prog(doneExecs / totalExecs, "Concat ✅");
 
-  // 2b. blur subtitles (optional) — adjustable region
+  // 2b. blur subtitles (optional) + burn Burmese subtitles (optional)
   let vInput = "vret.mp4";
-  if (blurRegion && blurRegion.h > 0.01) {
-    const by = Math.max(0, Math.min(0.95, blurRegion.y)).toFixed(4);
-    const bh = Math.max(0.02, Math.min(0.5, blurRegion.h)).toFixed(4);
-    prog(doneExecs / totalExecs, "စာတန်း blur လုပ်နေတယ်...");
-    await safeDelete(ffmpeg, "vblur.mp4");
-    const blurVf = `split[a][b];[a]crop=iw:ih*${bh}:0:ih*${by},boxblur=20[bg];[b][bg]overlay=0:ih*${by}`;
-    rc = await ffmpeg.exec([
+  const needBlur = blurRegion && blurRegion.h > 0.01;
+  const needSubs = srtContent && srtContent.trim().length > 10;
+
+  if (needBlur || needSubs) {
+    // write SRT file if needed
+    if (needSubs) {
+      await safeDelete(ffmpeg, "subs.srt");
+      await ffmpeg.writeFile("subs.srt", srtContent);
+      // fetch Burmese font for libass (CDN — no repo bloat)
+      try {
+        const fr = await fetch("https://fonts.gstatic.com/s/notosansmyanmar/v27/AlZU_y1ZtY3ymOryg38hOCSdOnFq0FP9_gnYM_ME0QeqLzz8-kqmtY3KLEbEGTOZltU.ttf");
+        if (fr.ok) {
+          const fb = new Uint8Array(await fr.arrayBuffer());
+          try { await ffmpeg.createDir("/fonts"); } catch (e) {}
+          await ffmpeg.writeFile("/fonts/NotoSansMyanmar.ttf", fb);
+        }
+      } catch (e) { /* font fetch failed — subs may fall back */ }
+    }
+
+    prog(doneExecs / totalExecs, needBlur ? "စာတန်း blur + မြန်မာစာတန်း..." : "မြန်မာစာတန်း ထည့်နေတယ်...");
+    await safeDelete(ffmpeg, "vsub.mp4");
+
+    // build video filter chain
+    let vf;
+    if (needBlur) {
+      const by = Math.max(0, Math.min(0.95, blurRegion.y)).toFixed(4);
+      const bh = Math.max(0.02, Math.min(0.5, blurRegion.h)).toFixed(4);
+      vf = `split[a][b];[a]crop=iw:ih*${bh}:0:ih*${by},boxblur=20[bg];[b][bg]overlay=0:ih*${by}`;
+      if (needSubs) vf += `,subtitles=subs.srt:fontsdir='/fonts':force_style='FontName=Noto Sans Myanmar,FontSize=22,PrimaryColour=&H00FFFFFF,OutlineColour=&H80000000,BorderStyle=1,Outline=2,MarginV=25'`;
+    } else {
+      vf = `subtitles=subs.srt:fontsdir='/fonts':force_style='FontName=Noto Sans Myanmar,FontSize=22,PrimaryColour=&H00FFFFFF,OutlineColour=&H80000000,BorderStyle=1,Outline=2,MarginV=25'`;
+    }
+
+    const rc2 = await ffmpeg.exec([
       "-y", "-v", "error",
       "-i", "vret.mp4",
-      "-filter:v", blurVf,
+      "-filter:v", vf,
       "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
-      "-an", "vblur.mp4",
+      "-an", "vsub.mp4",
     ]);
-    if (rc !== 0) throw new Error("Blur မအောင်မြင်ပါ");
-    vInput = "vblur.mp4";
-    prog(doneExecs / totalExecs, "Blur ✅");
+    if (rc2 !== 0) throw new Error("Subtitle/blur မအောင်မြင်ပါ");
+    vInput = "vsub.mp4";
+    prog(doneExecs / totalExecs, "✅");
   }
 
   // 3. narration on retimed timeline
