@@ -3,7 +3,7 @@ import { getFFmpeg } from "./ffmpeg.js";
 import { extractAudio, transcribeAssemblyAI, segmentsFromWords } from "./transcribe.js";
 import { edgeTTS, googleTTS, geminiTTS, serverTTS } from "./tts.js";
 import { smartRender } from "./render.js";
-import { computePeaks, drawWaveform, attachWaveform } from "./waveform.js";
+import { computePeaks, drawWaveform, attachWaveform, resetWaveView, getWaveView, waveZoomIn, waveZoomOut, waveZoomToSegment, wavePan } from "./waveform.js";
 
 const $ = id => document.getElementById(id);
 
@@ -210,6 +210,9 @@ async function initWaveform() {
     const { peaks, duration } = await computePeaks(state.audioBlob);
     state.wavePeaks = peaks;
     state.waveDur = duration;
+    state.waveSel = -1;
+    resetWaveView();
+    updateZoomLabel();
     wrap.style.display = "block";
     redrawWaveform();
     if (!waveAttached) {
@@ -228,7 +231,8 @@ async function initWaveform() {
           updateSplitBtn();
           redrawWaveform();
         },
-        (tapTime) => createSegmentAt(tapTime));
+        (tapTime) => createSegmentAt(tapTime),
+        () => { updateZoomLabel(); redrawWaveform(); }); // view (zoom/pan) changed
     }
     setStatus("transcribe-status", `✅ ${state.segments.length} segment ရပြီ — waveform နဲ့ timing ညှိလို့ရပြီ`);
   } catch (e) {
@@ -251,6 +255,47 @@ function updateWaveSelInfo() {
     el.textContent = "Segment ကို ထိ/ဆွဲပြီး ညှိပါ";
   }
 }
+
+function updateZoomLabel() {
+  const el = $("wave-zoom-label");
+  if (!el) return;
+  const z = getWaveView().zoom;
+  el.textContent = (z >= 10 ? z.toFixed(0) : (Math.round(z * 10) / 10)) + "x";
+}
+
+$("btn-zoom-in").addEventListener("click", () => {
+  if (!state.waveDur) return;
+  // zoom into selected segment if any, else view center
+  const sel = state.waveSel >= 0 ? state.segments[state.waveSel] : null;
+  const c = sel ? (sel.start + sel.end) / 2 : undefined;
+  waveZoomIn(state.waveDur, c);
+  updateZoomLabel();
+  redrawWaveform();
+});
+$("btn-zoom-out").addEventListener("click", () => {
+  if (!state.waveDur) return;
+  waveZoomOut(state.waveDur);
+  updateZoomLabel();
+  redrawWaveform();
+});
+$("btn-zoom-seg").addEventListener("click", () => {
+  if (!state.waveDur) return;
+  const sel = state.waveSel >= 0 ? state.segments[state.waveSel] : state.segments[0];
+  if (!sel) { setStatus("transcribe-status", "🎯 အရင် segment တစ်ခုရွေးပါ"); return; }
+  waveZoomToSegment(state.waveDur, sel);
+  updateZoomLabel();
+  redrawWaveform();
+});
+$("btn-pan-left").addEventListener("click", () => {
+  if (!state.waveDur) return;
+  wavePan(state.waveDur, -0.5);
+  redrawWaveform();
+});
+$("btn-pan-right").addEventListener("click", () => {
+  if (!state.waveDur) return;
+  wavePan(state.waveDur, 0.5);
+  redrawWaveform();
+});
 
 $("btn-wave-reset").addEventListener("click", () => {
   if (!state.segmentsOrig.length) return;

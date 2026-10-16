@@ -44,13 +44,21 @@
     <div id="transcribe-status" class="status"></div>
     <div id="waveform-wrap" style="display:none">
       <h3 style="font-size:.95rem;margin:10px 0 6px">🌊 Waveform — timing ညှိ</h3>
+      <div class="row" style="margin:4px 0;gap:6px;flex-wrap:wrap">
+        <button id="btn-zoom-out" class="secondary" style="width:auto;padding:8px 12px;margin:0">🔍➖</button>
+        <button id="btn-zoom-in" class="secondary" style="width:auto;padding:8px 12px;margin:0">🔍➕</button>
+        <button id="btn-zoom-seg" class="secondary" style="width:auto;padding:8px 12px;margin:0">🎯 Segment</button>
+        <button id="btn-pan-left" class="secondary" style="width:auto;padding:8px 12px;margin:0">◀</button>
+        <button id="btn-pan-right" class="secondary" style="width:auto;padding:8px 12px;margin:0">▶</button>
+        <span id="wave-zoom-label" class="info" style="flex:1;margin:0;text-align:right">1x</span>
+      </div>
       <canvas id="waveform" class="waveform"></canvas>
       <div class="row" style="margin-top:6px">
         <span id="wave-sel-info" class="info" style="flex:1">Segment ကို ထိ/ဆွဲပြီး ညှိပါ</span>
         <button id="btn-wave-split" class="secondary" style="width:auto;padding:8px 14px;margin:0;display:none">✂️ ခွဲ</button>
         <button id="btn-wave-reset" class="secondary" style="width:auto;padding:8px 14px;margin:0">↩️ Reset</button>
       </div>
-      <p class="hint">ခရမ်းရောင်ဘားအစ/အဆုံး ကို လက်နဲ့ဆွဲပြီး timing ပြင်လို့ရတယ် · အသံရှိပြီး segment မရှိတဲ့နေရာ ထိရင် အသစ်ထည့်လို့ရတယ်</p>
+      <p class="hint">ခရမ်းရောင်ဘားအစ/အဆုံး ကို လက်နဲ့ဆွဲပြီး timing ပြင်လို့ရတယ် · အသံရှိပြီး segment မရှိတဲ့နေရာ ထိရင် အသစ်ထည့်လို့ရတယ် · 🔍➕ နဲ့ zoom ဆွဲပြီး အသေးစိတ်ချိန်ပါ · လက်နှစ်ချောင်းနဲ့လည်း zoom ဆွဲနိုင်တယ်</p>
     </div>
     <div id="segments-list" class="list"></div>
   </section>
