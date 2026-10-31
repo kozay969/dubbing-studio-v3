@@ -2,7 +2,7 @@
 import { getFFmpeg } from "./ffmpeg.js";
 import { extractAudio, transcribeAssemblyAI, segmentsFromWords } from "./transcribe.js";
 import { edgeTTS, googleTTS, geminiTTS, serverTTS } from "./tts.js";
-import { smartRender } from "./render.js";
+import { smartRender, buildOps } from "./render.js";
 import { analyzeSilence, snapSegmentsToSilence } from "./silence.js";
 import { computePeaks, drawWaveform, attachWaveform, resetWaveView, getWaveView, waveZoomIn, waveZoomOut, waveZoomToSegment, wavePan } from "./waveform.js";
 
@@ -679,7 +679,10 @@ $("blur-height").addEventListener("input", e => {
   window.addEventListener("mouseup", () => dragging = false);
 })();
 
-// Build SRT from segments + translations (for burning Burmese subs)
+// Build SRT from segments + translations, timed to the RETIMED (rendered)
+// video: gaps are sped up by gapSpeed, so subtitle times must be mapped
+// through the same piece plan the render uses (buildOps + frame rounding).
+// Used for the burn-in subtitles AND the downloadable .srt file.
 function buildSRT() {
   const fmt = t => {
     t = Math.max(0, t);
@@ -687,16 +690,47 @@ function buildSRT() {
     const s = Math.floor(t % 60), ms = Math.floor((t % 1) * 1000);
     return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")},${String(ms).padStart(3, "0")}`;
   };
+  const gapSpeed = parseFloat(($("gap-speed") || {}).value || "2") || 2;
+  const fps = 30;
+  const startOut = new Array(state.segments.length).fill(0);
+  const endOut = new Array(state.segments.length).fill(0);
+  let t = 0;
+  for (const op of buildOps(state.segments, state.duration)) {
+    const target = op.dur / (op.kind === "gap" ? gapSpeed : 1.0);
+    const pd = Math.max(1, Math.ceil(target * fps - 1e-6)) / fps;
+    if (op.kind !== "gap") { startOut[op.idx] = t; endOut[op.idx] = t + pd; }
+    t += pd;
+  }
   const out = [];
   let n = 0;
   state.segments.forEach((seg, i) => {
     const text = (state.translations[i] || "").trim();
     if (!text) return;
     n++;
-    out.push(`${n}\n${fmt(seg.start)} --> ${fmt(seg.end)}\n${text}\n`);
+    out.push(`${n}\n${fmt(startOut[i])} --> ${fmt(endOut[i])}\n${text}\n`);
   });
   return out.join("\n");
 }
+
+// Download the Burmese SRT (retimed timing, matches the rendered video)
+$("btn-srt").addEventListener("click", () => {
+  if (!state.segments.length) return alert("အရင် transcribe လုပ်ပါ");
+  if (!state.translations.length) return alert("အရင် translation paste လုပ်ပါ (Step 4)");
+  const srt = buildSRT();
+  if (!srt.trim()) return alert("စာတန်း စာသား မရှိဘူး");
+  const blob = new Blob(["\uFEFF" + srt], { type: "text/plain;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  const base = state.videoFile && state.videoFile.name
+    ? state.videoFile.name.replace(/\.[^.]+$/, "")
+    : "dubbed_v3";
+  a.download = `${base}.srt`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  setStatus("render-status", "📄 SRT ဒေါင်းပြီးပြီ");
+});
 
 // ---------- Step 5: render ----------
 $("btn-render").addEventListener("click", async () => {
