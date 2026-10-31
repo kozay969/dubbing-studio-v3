@@ -1,7 +1,9 @@
 // Silence-sync: detect real silences in the extracted audio (Web Audio),
-// then snap segment boundaries to silence midpoints — the studio99 trick:
-// cuts land mid-pause instead of exactly on word edges, so the smart
-// render's 1x pieces and sped-up gaps join where nobody is speaking.
+// then snap segment boundaries to the EDGES of the pause — segment end =
+// pause start (speech end), next segment start = pause end (speech start).
+// The pause itself stays a gap op in the render, so it still gets sped up;
+// snapping to the midpoint instead would swallow the pause into the two
+// neighbouring 1x segments and defeat the gap speedup (video drags).
 
 // Pure detector — works on mono Float32Array samples. Testable outside the browser.
 // dBFS per window vs threshold (ffmpeg silencedetect style, noise=-38dB default).
@@ -76,10 +78,11 @@ export async function analyzeSilence(audioBlob, opts = {}) {
   }
 }
 
-// Snap segment boundaries to silence midpoints.
+// Snap segment boundaries to the EDGES of the covering pause.
 // segments: [{start, end, text}] sorted, non-overlapping (from segmentsOrig).
-// Only boundaries sitting inside/near a real detected pause are moved, and
-// both sides of the boundary move to the SAME midpoint — order never breaks.
+// For a boundary inside a real pause: seg[i].end -> pause.start and
+// seg[i+1].start -> pause.end, so the pause remains a gap between the
+// segments (sped up at render) instead of being absorbed at 1x.
 export function snapSegmentsToSilence(segments, silences, vdur = 0) {
   const segs = segments.map(s => ({ ...s }));
   if (!silences || !silences.length || segs.length < 1) {
@@ -94,23 +97,25 @@ export function snapSegmentsToSilence(segments, silences, vdur = 0) {
     const a = segs[i], b = segs[i + 1];
     const iv = findCovering(a.end, 0.35) || findCovering(b.start, 0.35);
     if (!iv) continue;
-    const mid = iv.mid;
-    // keep the midpoint safely inside both segments and near the old boundary
-    if (mid <= a.start + 0.3 || mid >= b.end - 0.3) continue;
-    if (mid < a.end - 0.15 || mid > b.start + 0.15) continue;
-    if (Math.abs(mid - a.end) < 0.03 && Math.abs(mid - b.start) < 0.03) continue;
-    a.end = mid;
-    b.start = mid;
+    const newAEnd = iv.start, newBStart = iv.end;
+    // safety: each segment keeps >=0.3s, and neither edge moves >0.5s
+    if (newAEnd <= a.start + 0.3 || newBStart >= b.end - 0.3) continue;
+    if (Math.abs(newAEnd - a.end) > 0.5 || Math.abs(newBStart - b.start) > 0.5) continue;
+    if (Math.abs(newAEnd - a.end) < 0.03 && Math.abs(newBStart - b.start) < 0.03) continue;
+    a.end = newAEnd;
+    b.start = newBStart;
     snapped++;
   }
-  // leading edge: pull first segment start back to a preceding pause midpoint
+  // leading edge: if the first segment starts inside a pause, move its
+  // start to the pause end (true speech start); the pause stays a head gap.
   const first = segs[0];
-  const ivFirst = silences.find(iv => iv.end >= first.start - 0.4 && iv.end <= first.start + 0.15 && iv.mid < first.start && first.start - iv.mid <= 0.6);
-  if (ivFirst && ivFirst.mid >= 0) { first.start = Math.max(0, ivFirst.mid); snapped++; }
-  // trailing edge: extend last segment end to a following pause midpoint
+  const ivFirst = silences.find(iv => iv.start - 0.15 <= first.start && iv.end >= first.start - 0.15 && iv.end <= first.end - 0.3 && (iv.end - iv.start) >= 0.3 - 1e-6);
+  if (ivFirst && ivFirst.end > first.start + 0.03) { first.start = ivFirst.end; snapped++; }
+  // trailing edge: if the last segment ends inside a pause, move its end
+  // back to the pause start (true speech end); the rest stays a tail gap.
   const last = segs[segs.length - 1];
-  const ivLast = silences.find(iv => iv.start <= last.end + 0.4 && iv.start >= last.end - 0.15 && iv.mid > last.end && iv.mid - last.end <= 0.6);
-  if (ivLast) { last.end = vdur > 0 ? Math.min(vdur, ivLast.mid) : ivLast.mid; snapped++; }
+  const ivLast = silences.find(iv => iv.start <= last.end + 0.15 && iv.end + 0.15 >= last.end && iv.start >= last.start + 0.3 && (iv.end - iv.start) >= 0.3 - 1e-6);
+  if (ivLast && ivLast.start < last.end - 0.03) { last.end = ivLast.start; snapped++; }
 
   return { segments: segs, snapped };
 }

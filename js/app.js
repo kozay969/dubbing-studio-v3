@@ -48,7 +48,7 @@ function updateSilenceInfo(snapped) {
   if (!el) return;
   if (!state.silences.length) { el.textContent = ""; return; }
   el.textContent = silenceSyncOn()
-    ? `🔇 တိတ်တဲ့နေရာ ${state.silences.length} ခု — နယ်နိမိတ် ${snapped ?? 0} ခု အလယ်မှတ်နဲ့ ညှိထားတယ်`
+    ? `🔇 တိတ်တဲ့နေရာ ${state.silences.length} ခု — နယ်နိမိတ် ${snapped ?? 0} ခု စကားအစ/အဆုံးနဲ့ ညှိထားတယ်`
     : `🔇 တိတ်တဲ့နေရာ ${state.silences.length} ခု တွေ့တယ် (sync ပိတ်ထား)`;
 }
 
