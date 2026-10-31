@@ -3,6 +3,7 @@ import { getFFmpeg } from "./ffmpeg.js";
 import { extractAudio, transcribeAssemblyAI, segmentsFromWords } from "./transcribe.js";
 import { edgeTTS, googleTTS, geminiTTS, serverTTS } from "./tts.js";
 import { smartRender } from "./render.js";
+import { analyzeSilence, snapSegmentsToSilence } from "./silence.js";
 import { computePeaks, drawWaveform, attachWaveform, resetWaveView, getWaveView, waveZoomIn, waveZoomOut, waveZoomToSegment, wavePan } from "./waveform.js";
 
 const $ = id => document.getElementById(id);
@@ -20,8 +21,36 @@ const state = {
   waveSel: -1,
   waveSplitTime: null, // last tap position inside selected segment
   segmentsOrig: [],  // pristine copy for reset
+  silences: [],      // detected silence intervals [{start,end,mid}]
   blurRegion: { y: 0.82, h: 0.18 }, // top-edge and height as fractions
 };
+
+function silenceSyncOn() {
+  const el = $("silence-sync");
+  return !el || el.checked;
+}
+
+// Re-derive state.segments from the pristine copy, applying silence-sync
+// snapping when enabled. Returns how many boundaries were snapped.
+function applySilenceSnap() {
+  if (!state.segmentsOrig.length) return 0;
+  if (silenceSyncOn() && state.silences.length) {
+    const { segments, snapped } = snapSegmentsToSilence(state.segmentsOrig, state.silences, state.duration);
+    state.segments = segments;
+    return snapped;
+  }
+  state.segments = state.segmentsOrig.map(s => ({ ...s }));
+  return 0;
+}
+
+function updateSilenceInfo(snapped) {
+  const el = $("silence-info");
+  if (!el) return;
+  if (!state.silences.length) { el.textContent = ""; return; }
+  el.textContent = silenceSyncOn()
+    ? `🔇 တိတ်တဲ့နေရာ ${state.silences.length} ခု — နယ်နိမိတ် ${snapped ?? 0} ခု အလယ်မှတ်နဲ့ ညှိထားတယ်`
+    : `🔇 တိတ်တဲ့နေရာ ${state.silences.length} ခု တွေ့တယ် (sync ပိတ်ထား)`;
+}
 
 function setStatus(id, msg, isErr = false) {
   const el = $(id);
@@ -78,7 +107,16 @@ $("btn-transcribe").addEventListener("click", async () => {
     state.segments = segs;
     state.segmentsOrig = segs.map(s => ({ ...s }));
     state.waveSel = -1;
-    setStatus("transcribe-status", `✅ ${segs.length} segment ရပြီ`);
+    // Silence-sync: find real pauses in the audio, snap boundaries to their midpoints
+    state.silences = [];
+    try {
+      setStatus("transcribe-status", "🔇 Silence စစ်နေတယ်...");
+      state.silences = await analyzeSilence(audioBlob);
+    } catch (e) { state.silences = []; }
+    const snappedCount = applySilenceSnap();
+    updateSilenceInfo(snappedCount);
+    setStatus("transcribe-status", `✅ ${segs.length} segment ရပြီ` +
+      (state.silences.length ? ` — 🔇 silence ${state.silences.length} ခု, နယ်နိမိတ် ${snappedCount} ခု ညှိပြီး` : ""));
     renderSegments();
     buildPrompt();
     initWaveform();
@@ -299,13 +337,29 @@ $("btn-pan-right").addEventListener("click", () => {
 
 $("btn-wave-reset").addEventListener("click", () => {
   if (!state.segmentsOrig.length) return;
-  state.segments = state.segmentsOrig.map(s => ({ ...s }));
+  const snappedCount = applySilenceSnap();
+  updateSilenceInfo(snappedCount);
   state.waveSel = -1;
   renderSegments();
   buildPrompt();
   updateWaveSelInfo();
   redrawWaveform();
   setStatus("transcribe-status", "↩️ Timing မူလအတိုင်း ပြန်ထားပြီးပြီ");
+});
+
+// Silence-sync toggle (Step 5): re-derive timings from the pristine copy
+if ($("silence-sync")) $("silence-sync").addEventListener("change", () => {
+  if (!state.segmentsOrig.length) { updateSilenceInfo(0); return; }
+  const snappedCount = applySilenceSnap();
+  updateSilenceInfo(snappedCount);
+  state.waveSel = -1;
+  renderSegments();
+  buildPrompt();
+  updateWaveSelInfo();
+  redrawWaveform();
+  setStatus("transcribe-status", silenceSyncOn()
+    ? `🔇 Silence-sync ဖွင့် — နယ်နိမိတ် ${snappedCount} ခု ညှိပြီး`
+    : "🔇 Silence-sync ပိတ် — မူလ timing အတိုင်း");
 });
 
 // ---------- Step 3: prompt ----------

@@ -116,6 +116,14 @@
   <section class="card">
     <h2>5️⃣ 🎬 Render — ဖုန်းပေါ်မှာ</h2>
     <div class="row">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="silence-sync" checked style="width:20px;height:20px">
+        🔇 Silence-sync — ဖြတ်ရာကို တိတ်တဲ့နေရာ အလယ်မှတ်နဲ့ ညှိ
+      </label>
+    </div>
+    <div id="silence-info" class="info"></div>
+    <p class="hint">ဖွင့်/ပိတ် လုပ်ရင် segment timing ကို မူလ AssemblyAI timing ကနေ ပြန်ညှိမယ် (waveform မှာ လက်နဲ့ ပြင်ထားတာတွေ ပျက်သွားမယ်)</p>
+    <div class="row">
       <label>တိတ်နေရာ speed:</label>
       <select id="gap-speed">
         <option value="1.5">1.5x</option>
