@@ -1,5 +1,5 @@
 // Dubbing Studio v3 — on-device pipeline orchestration
-import { getFFmpeg } from "./ffmpeg.js";
+import { getFFmpeg, getEngineMode } from "./ffmpeg.js";
 import { extractAudio, transcribeAssemblyAI, segmentsFromWords } from "./transcribe.js";
 import { edgeTTS, googleTTS, geminiTTS, serverTTS } from "./tts.js";
 import { smartRender, buildOps } from "./render.js";
@@ -61,9 +61,27 @@ function setStatus(id, msg, isErr = false) {
 // ---------- Engine preload (background, with progress — not blocking transcribe) ----------
 getFFmpeg((frac, label) => {
   const e = $("engine-status");
-  if (frac >= 1) { e.textContent = "✅ Engine အဆင်သင့်"; e.classList.add("ok"); }
+  if (frac >= 1) {
+    e.textContent = getEngineMode() === "mt" ? "✅ Engine အဆင်သင့် ⚡ multi-thread" : "✅ Engine အဆင်သင့်";
+    e.classList.add("ok");
+  }
   else e.textContent = `⏳ ${label} ${Math.round(frac * 100)}%`;
 }).catch(e => { $("engine-status").textContent = "❌ Engine တင်မရဘူး: " + e.message; });
+
+// Multi-thread toggle (Step 5): applies on next engine load (refresh).
+(() => {
+  const chk = $("chk-mt");
+  if (!chk) return;
+  let forced = false;
+  try { forced = localStorage.getItem("v3_force_st") === "1"; } catch (e) {}
+  chk.checked = !forced;
+  chk.addEventListener("change", () => {
+    try {
+      if (chk.checked) localStorage.removeItem("v3_force_st");
+      else localStorage.setItem("v3_force_st", "1");
+    } catch (e) {}
+  });
+})();
 
 // ---------- Step 1: video ----------
 $("video-input").addEventListener("change", e => {

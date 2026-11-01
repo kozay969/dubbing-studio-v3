@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dubbing Studio v3 — ဖုန်းပေါ်မှာ Render</title>
 <link rel="stylesheet" href="styles.css">
+<script>
+  // Cross-origin isolation on GitHub Pages (which can't set COOP/COEP
+  // headers): a service worker adds them, enabling SharedArrayBuffer so
+  // ffmpeg.wasm can use its MULTI-THREAD core. First visit reloads once.
+  window.coi = { coepCredentialless: () => true, quiet: true };
+</script>
+<script src="coi-serviceworker.js"></script>
 <script type="importmap">
 {"imports":{
   "@ffmpeg/ffmpeg":"./vendor/ffmpeg/index.js",
@@ -162,6 +169,7 @@
       <div id="render-status" class="status">0%</div>
     </div>
     <p class="warn">⚠️ Page ကို ဖွင့်ထားပါ — video က ဖုန်းပေါ်မှာပဲ လုပ်တာ, upload မလုပ်. ပြီးရင် download ဆွဲပါ.</p>
+    <label class="row" style="margin-top:6px"><input type="checkbox" id="chk-mt" checked> ⚡ Multi-thread engine — render ပိုမြန်တယ် (အဆင်မပြေရင် အမှန်ခြစ် ဖြုတ်ပြီး page refresh လုပ်ပါ)</label>
     <video id="output-preview" controls playsinline style="display:none"></video>
     <a id="btn-download" class="primary big btn-dl" style="display:none" download="dubbed_v3.mp4">📥 Download MP4</a>
     <button id="btn-srt" class="primary big" style="margin-top:8px">📄 SRT ဖိုင် ဒေါင်း (မြန်မာစာတန်း)</button>
