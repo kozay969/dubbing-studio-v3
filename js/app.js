@@ -758,6 +758,7 @@ $("btn-render").addEventListener("click", async () => {
   $("render-progress-wrap").style.display = "block";
   $("btn-download").style.display = "none";
   $("output-preview").style.display = "none";
+  let lastStage = "";
   try {
     const outBlob = await smartRender({
       videoFile: state.videoFile,
@@ -771,6 +772,7 @@ $("btn-render").addEventListener("click", async () => {
       srtContent,
       onProgress: (p, msg) => {
         $("render-progress-fill").style.width = (p * 100).toFixed(0) + "%";
+        if (msg) lastStage = msg;
         setStatus("render-status", `${(p * 100).toFixed(0)}% — ${msg}`);
       },
     });
@@ -782,7 +784,10 @@ $("btn-render").addEventListener("click", async () => {
     dl.style.display = "block";
     setStatus("render-status", "🎉 ပြီးပြီ! Download ဆွဲပါ");
   } catch (e) {
-    setStatus("render-status", "❌ " + e.message, true);
+    // ffmpeg.wasm rejects with a messageless value when its worker dies
+    // (usually phone memory on long videos) — name the stage it died at
+    const detail = e && e.message ? e.message : "engine ရပ်သွားတယ် (ဖုန်း memory ပြည့်တာ ဖြစ်နိုင်တယ်)";
+    setStatus("render-status", `❌ ${lastStage ? lastStage + " မှာ ရပ်သွားတယ် — " : ""}${detail}`, true);
   }
   $("btn-render").disabled = false;
 });

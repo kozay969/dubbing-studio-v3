@@ -26,8 +26,15 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
   const ffmpeg = await getFFmpeg();
   const prog = (p, msg) => onProgress && onProgress(Math.min(1, Math.max(0, p)), msg || "");
 
-  // fresh workspace
-  for (const n of ["input.mp4", "pieces.txt", "vret.mp4", "vsub.mp4", "subs.srt", "dubbed.mp4"]) await safeDelete(ffmpeg, n);
+  // fresh workspace — also clear stale piece files from earlier runs,
+  // they otherwise pile up in the wasm FS and eat phone memory
+  for (const n of ["input.mp4", "pieces.txt", "vret.mp4", "vblur.mp4", "vsub.mp4", "subs.srt", "dubbed.mp4"]) await safeDelete(ffmpeg, n);
+  try {
+    const entries = await ffmpeg.listDir("/");
+    for (const e of entries) {
+      if (e && !e.isDir && /^p\d{4}\.mp4$/.test(e.name)) await safeDelete(ffmpeg, e.name);
+    }
+  } catch (e) {}
   await ffmpeg.writeFile("input.mp4", await fetchFile(videoFile));
   for (let i = 0; i < clips.length; i++) {
     await safeDelete(ffmpeg, `clip${i}.mp3`);
@@ -88,6 +95,15 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
   if (rc !== 0) throw new Error("Concat မအောင်မြင်ပါ");
   doneExecs++;
   prog(doneExecs / totalExecs, "Concat ✅");
+
+  // Free memory NOW: the input and the cut pieces are no longer needed
+  // (blur/subs/mux all work from vret.mp4 + the TTS clips). On a phone the
+  // wasm FS holding input + pieces + vret + output at once can OOM-kill
+  // the engine mid-mux, which surfaces as a messageless "undefined" error.
+  await safeDelete(ffmpeg, "input.mp4");
+  for (let k = 0; k < ops.length; k++) {
+    await safeDelete(ffmpeg, `p${String(k).padStart(4, "0")}.mp4`);
+  }
 
   // 2b. blur subtitles (optional)
   let vInput = "vret.mp4";
