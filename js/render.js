@@ -42,64 +42,104 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
   }
 
   const ops = buildOps(segments, vdur);
-  const totalExecs = ops.length + 2; // pieces + concat + mux
-  let doneExecs = 0;
+
+  // Planned duration of every op on the retimed timeline (frame-exact).
+  // Narration placement below is computed from these, so both video build
+  // paths (single-pass and pieces) must produce exactly this plan.
+  const pieceDurs = ops.map(op => {
+    const target = op.dur / (op.kind === "gap" ? gapSpeed : 1.0);
+    return Math.max(1, Math.ceil(target * fps - 1e-6)) / fps;
+  });
+
+  // Stage-weighted progress: video build 0→0.85, blur/subs ~0.85-0.90,
+  // mux 0.90→1. The ffmpeg progress fraction applies within the stage.
+  let stageBase = 0, stageSpan = 0.85, stageLabel = "Video တည်ဆောက်...";
   let curProg = 0;
   ffmpeg.on("progress", ({ progress }) => {
     curProg = progress || 0;
-    prog((doneExecs + curProg) / totalExecs, `Piece ${doneExecs + 1}/${ops.length}`);
+    prog(stageBase + Math.min(1, Math.max(0, curProg)) * stageSpan, stageLabel);
   });
+  const setStage = (base, span, label) => { stageBase = base; stageSpan = span; stageLabel = label; curProg = 0; };
 
-  // 1. cut pieces
-  const pieceDurs = [];
-  for (let k = 0; k < ops.length; k++) {
-    const op = ops[k];
-    const speed = op.kind === "gap" ? gapSpeed : 1.0;
-    const target = op.dur / speed;
-    const F = Math.max(1, Math.ceil(target * fps - 1e-6));
-    const vf = [
-      `trim=start=${op.start.toFixed(3)}:end=${(op.start + op.dur).toFixed(3)}`,
-      "setpts=PTS-STARTPTS",
-      "tpad=stop_mode=clone:stop=2",
-    ];
-    if (speed > 1.001) {
-      vf.push(`setpts=PTS/${speed.toFixed(4)}`, `fps=${fps}`);
-    } else {
-      vf.push(`fps=${fps}`);
-    }
-    const pname = `p${String(k).padStart(4, "0")}.mp4`;
-    await safeDelete(ffmpeg, pname);
-    curProg = 0;
-    const rc = await ffmpeg.exec([
+  // ---- Video build, preferred path: SINGLE PASS ----
+  // One filtergraph: split the input per op, trim/speed/fps each branch,
+  // concat filter joins them. NO piece files ever accumulate in the wasm
+  // FS — the old cut-every-piece flow OOM-killed the engine at piece
+  // ~98/102 on a phone (source + all pieces + output in wasm memory).
+  // Returns the exec exit code; a REJECTION (worker death) propagates.
+  async function buildVideoSinglePass() {
+    const N = ops.length;
+    const parts = [`[0:v]split=${N}${ops.map((_, k) => `[s${k}]`).join("")}`];
+    const vlabels = [];
+    ops.forEach((op, k) => {
+      const speed = op.kind === "gap" ? gapSpeed : 1.0;
+      const F = Math.round(pieceDurs[k] * fps);
+      let chain = `[s${k}]trim=start=${op.start.toFixed(3)}:end=${(op.start + op.dur).toFixed(3)},setpts=PTS-STARTPTS`;
+      if (speed > 1.001) chain += `,setpts=PTS/${speed.toFixed(4)}`;
+      chain += `,fps=${fps},tpad=stop_mode=clone:stop=90,trim=end_frame=${F},setpts=PTS-STARTPTS,setsar=1,format=yuv420p[v${k}]`;
+      parts.push(chain);
+      vlabels.push(`[v${k}]`);
+    });
+    parts.push(`${vlabels.join("")}concat=n=${N}:v=1:a=0[vc]`);
+    setStage(0, 0.85, "Video တည်ဆောက်... (single-pass)");
+    return await ffmpeg.exec([
       "-y", "-v", "error",
-      "-ss", op.start.toFixed(3), "-t", (op.dur + 15).toFixed(3), "-copyts",
       "-i", "input.mp4",
-      "-filter:v", vf.join(","),
-      "-frames:v", String(F),
+      "-filter_complex", parts.join(";"),
+      "-map", "[vc]",
       "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
-      "-an", pname,
+      "-an", "vret.mp4",
     ]);
-    if (rc !== 0) throw new Error(`Piece ${k + 1} ဖြတ်မရဘူး`);
-    pieceDurs.push(F / fps);
-    doneExecs++;
-    prog(doneExecs / totalExecs, `Piece ${k + 1}/${ops.length} ✅`);
   }
 
-  // 2. concat
-  const list = ops.map((_, k) => `file 'p${String(k).padStart(4, "0")}.mp4'`).join("\n");
-  await ffmpeg.writeFile("pieces.txt", list);
-  await safeDelete(ffmpeg, "vret.mp4");
-  curProg = 0;
-  prog(doneExecs / totalExecs, "ဆက်နေတယ်...");
-  let rc = await ffmpeg.exec(["-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", "pieces.txt", "-c", "copy", "vret.mp4"]);
-  if (rc !== 0) throw new Error("Concat မအောင်မြင်ပါ");
-  doneExecs++;
-  prog(doneExecs / totalExecs, "Concat ✅");
+  // ---- Video build, fallback path: cut pieces + concat (previous flow) ----
+  async function buildVideoViaPieces() {
+    for (let k = 0; k < ops.length; k++) {
+      const op = ops[k];
+      const speed = op.kind === "gap" ? gapSpeed : 1.0;
+      const target = op.dur / speed;
+      const F = Math.max(1, Math.ceil(target * fps - 1e-6));
+      const vf = [
+        `trim=start=${op.start.toFixed(3)}:end=${(op.start + op.dur).toFixed(3)}`,
+        "setpts=PTS-STARTPTS",
+        "tpad=stop_mode=clone:stop=2",
+      ];
+      if (speed > 1.001) vf.push(`setpts=PTS/${speed.toFixed(4)}`, `fps=${fps}`);
+      else vf.push(`fps=${fps}`);
+      const pname = `p${String(k).padStart(4, "0")}.mp4`;
+      await safeDelete(ffmpeg, pname);
+      setStage((k / ops.length) * 0.85, 0.85 / ops.length, `Piece ${k + 1}/${ops.length}`);
+      const rc = await ffmpeg.exec([
+        "-y", "-v", "error",
+        "-ss", op.start.toFixed(3), "-t", (op.dur + 15).toFixed(3), "-copyts",
+        "-i", "input.mp4",
+        "-filter:v", vf.join(","),
+        "-frames:v", String(F),
+        "-c:v", "libx264", "-preset", "ultrafast", "-crf", "23",
+        "-an", pname,
+      ]);
+      if (rc !== 0) throw new Error(`Piece ${k + 1} ဖြတ်မရဘူး`);
+      prog(((k + 1) / ops.length) * 0.85, `Piece ${k + 1}/${ops.length} ✅`);
+    }
+    const list = ops.map((_, k) => `file 'p${String(k).padStart(4, "0")}.mp4'`).join("\n");
+    await ffmpeg.writeFile("pieces.txt", list);
+    await safeDelete(ffmpeg, "vret.mp4");
+    setStage(0.83, 0.02, "ဆက်နေတယ်...");
+    const rc = await ffmpeg.exec(["-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", "pieces.txt", "-c", "copy", "vret.mp4"]);
+    if (rc !== 0) throw new Error("Concat မအောင်မြင်ပါ");
+  }
 
-  // Free memory NOW: the input and the cut pieces are no longer needed
-  // (blur/subs/mux all work from vret.mp4 + the TTS clips). On a phone the
-  // wasm FS holding input + pieces + vret + output at once can OOM-kill
-  // the engine mid-mux, which surfaces as a messageless "undefined" error.
+  await safeDelete(ffmpeg, "vret.mp4");
+  const singleRc = await buildVideoSinglePass();
+  if (singleRc !== 0) {
+    // graph-level failure (engine still alive) — fall back to pieces
+    await safeDelete(ffmpeg, "vret.mp4");
+    await buildVideoViaPieces();
+  }
+  prog(0.85, "Video ✅");
+
+  // Free memory NOW: the input and any piece files are no longer needed
+  // (blur/subs/mux all work from vret.mp4 + the TTS clips).
   await safeDelete(ffmpeg, "input.mp4");
   for (let k = 0; k < ops.length; k++) {
     await safeDelete(ffmpeg, `p${String(k).padStart(4, "0")}.mp4`);
@@ -113,7 +153,7 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
   if (needBlur) {
     const by = Math.max(0, Math.min(0.95, blurRegion.y)).toFixed(4);
     const bh = Math.max(0.02, Math.min(0.5, blurRegion.h)).toFixed(4);
-    prog(doneExecs / totalExecs, "စာတန်း blur လုပ်နေတယ်...");
+    setStage(0.85, 0.03, "စာတန်း blur လုပ်နေတယ်...");
     await safeDelete(ffmpeg, "vblur.mp4");
     const blurVf = `split[a][b];[a]crop=iw:ih*${bh}:0:ih*${by},boxblur=20[bg];[b][bg]overlay=0:ih*${by}`;
     const rcb = await ffmpeg.exec([
@@ -125,12 +165,12 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
     ]);
     if (rcb !== 0) throw new Error("Blur မအောင်မြင်ပါ");
     vInput = "vblur.mp4";
-    prog(doneExecs / totalExecs, "Blur ✅");
+    prog(0.88, "Blur ✅");
   }
 
   // 2c. burn Burmese subtitles (optional) — via drawtext (per-line, libass-free)
   if (needSubs) {
-    prog(doneExecs / totalExecs, "မြန်မာစာတန်း ထည့်နေတယ်...");
+    setStage(0.88, 0.02, "မြန်မာစာတန်း ထည့်နေတယ်...");
     // fetch Burmese font
     let fontOk = false;
     try {
@@ -175,7 +215,7 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
     ]);
     if (rcs !== 0) throw new Error("စာတန်းထိုး မအောင်မြင်ပါ (drawtext)");
     vInput = "vsub.mp4";
-    prog(doneExecs / totalExecs, "စာတန်း ✅");
+    prog(0.9, "စာတန်း ✅");
   }
 
   // 3. narration on retimed timeline
@@ -212,11 +252,9 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
     "-shortest", "dubbed.mp4"
   );
   await safeDelete(ffmpeg, "dubbed.mp4");
-  curProg = 0;
-  prog(doneExecs / totalExecs, "အသံ ပေါင်းနေတယ်...");
-  rc = await ffmpeg.exec(args);
-  if (rc !== 0) throw new Error("Mux မအောင်မြင်ပါ");
-  doneExecs++;
+  setStage(0.9, 0.1, "အသံ ပေါင်းနေတယ်...");
+  const rcm = await ffmpeg.exec(args);
+  if (rcm !== 0) throw new Error("Mux မအောင်မြင်ပါ");
   prog(1, "🎉 ပြီးပြီ!");
 
   const data = await ffmpeg.readFile("dubbed.mp4");
