@@ -2,7 +2,7 @@
 import { getFFmpeg, getEngineMode } from "./ffmpeg.js";
 import { extractAudio, transcribeAssemblyAI, segmentsFromWords } from "./transcribe.js";
 import { edgeTTS, googleTTS, geminiTTS, serverTTS } from "./tts.js";
-import { smartRender, buildOps } from "./render.js";
+import { smartRender, planOps } from "./render.js";
 import { analyzeSilence, snapSegmentsToSilence } from "./silence.js";
 import { computePeaks, drawWaveform, attachWaveform, resetWaveView, getWaveView, waveZoomIn, waveZoomOut, waveZoomToSegment, wavePan } from "./waveform.js";
 
@@ -698,8 +698,9 @@ $("blur-height").addEventListener("input", e => {
 })();
 
 // Build SRT from segments + translations, timed to the RETIMED (rendered)
-// video: gaps are sped up by gapSpeed, so subtitle times must be mapped
-// through the same piece plan the render uses (buildOps + frame rounding).
+// video: subtitle times are mapped through planOps — the exact same
+// retime plan the render uses (gap speedup + per-scene picture fit), so
+// the subtitles land where the rendered voices land.
 // Used for the burn-in subtitles AND the downloadable .srt file.
 function buildSRT() {
   const fmt = t => {
@@ -713,11 +714,15 @@ function buildSRT() {
   const startOut = new Array(state.segments.length).fill(0);
   const endOut = new Array(state.segments.length).fill(0);
   let t = 0;
-  for (const op of buildOps(state.segments, state.duration)) {
-    const target = op.dur / (op.kind === "gap" ? gapSpeed : 1.0);
-    const pd = Math.max(1, Math.ceil(target * fps - 1e-6)) / fps;
-    if (op.kind !== "gap") { startOut[op.idx] = t; endOut[op.idx] = t + pd; }
-    t += pd;
+  for (const op of planOps(state.segments, state.duration, gapSpeed, state.clipDurs, fps)) {
+    if (op.kind !== "gap") {
+      startOut[op.idx] = t;
+      // subtitle hides when the voice line ends (or at the scene's
+      // retimed end if the line runs long), not at a fixed slot end
+      const cd = state.clipDurs && state.clipDurs[op.idx];
+      endOut[op.idx] = t + (cd && cd > 0.05 ? Math.min(cd, op.retDur) : op.retDur);
+    }
+    t += op.retDur;
   }
   const out = [];
   let n = 0;

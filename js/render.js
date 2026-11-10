@@ -1,9 +1,17 @@
 // Smart render on-device via ffmpeg.wasm
-// Port of phone smart_merge.py: 🗣️ talk=1x, 🔇 gaps sped up, 🎙️ narration placed on retimed timeline
+// 🔇 gaps sped up; 🗣️ talk scenes are PICTURE-FITTED to the narration:
+// the voice always plays at 100% natural speed (never atempo'd) and each
+// talk segment's video speed is adjusted so the scene lasts exactly as
+// long as its voice line (Ko Zay's choice, 2026-11-10 — the old one-way
+// audio speed-fit left short lines ending early with dead air after them).
 import { getFFmpeg } from "./ffmpeg.js";
 import { fetchFile } from "@ffmpeg/util";
 
-const MAX_RATE = 1.5;
+// Talk-scene picture speed clamp: below 0.8x faces crawl, above 1.5x the
+// motion looks frantic. Inside the clamp the fit is exact; outside it the
+// leftover mismatch is much smaller than the old behaviour.
+export const SEG_MIN_SPEED = 0.8;
+export const SEG_MAX_SPEED = 1.5;
 
 export function buildOps(segments, vdur) {
   const ops = [];
@@ -16,6 +24,26 @@ export function buildOps(segments, vdur) {
   });
   if (prev < vdur - 0.001) ops.push({ kind: "gap", start: prev, dur: vdur - prev });
   return ops;
+}
+
+// The single retime plan shared by the video build, the narration
+// placement and the subtitle timing (app.js buildSRT imports this too —
+// all three MUST agree frame-for-frame or sync breaks).
+// Each op gains: speed (gaps: gapSpeed; talk: fitted to the clip length)
+// and retDur (its duration on the retimed timeline, rounded UP to whole
+// frames exactly like the video build produces).
+export function planOps(segments, vdur, gapSpeed, clipDurs, fps = 30) {
+  return buildOps(segments, vdur).map(op => {
+    let speed = op.kind === "gap" ? gapSpeed : 1.0;
+    if (op.kind === "seg" && clipDurs) {
+      const cd = clipDurs[op.idx];
+      if (cd && cd > 0.05 && op.dur > 0.05) {
+        speed = Math.min(SEG_MAX_SPEED, Math.max(SEG_MIN_SPEED, op.dur / cd));
+      }
+    }
+    const retDur = Math.max(1, Math.ceil((op.dur / speed) * fps - 1e-6)) / fps;
+    return { ...op, speed, retDur };
+  });
 }
 
 async function safeDelete(ffmpeg, name) {
@@ -41,15 +69,12 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
     await ffmpeg.writeFile(`clip${i}.mp3`, await fetchFile(clips[i]));
   }
 
-  const ops = buildOps(segments, vdur);
+  const ops = planOps(segments, vdur, gapSpeed, clipDurs, fps);
 
   // Planned duration of every op on the retimed timeline (frame-exact).
   // Narration placement below is computed from these, so both video build
   // paths (single-pass and pieces) must produce exactly this plan.
-  const pieceDurs = ops.map(op => {
-    const target = op.dur / (op.kind === "gap" ? gapSpeed : 1.0);
-    return Math.max(1, Math.ceil(target * fps - 1e-6)) / fps;
-  });
+  const pieceDurs = ops.map(op => op.retDur);
 
   // Stage-weighted progress: video build 0→0.85, blur/subs ~0.85-0.90,
   // mux 0.90→1. The ffmpeg progress fraction applies within the stage.
@@ -72,11 +97,11 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
     const parts = [`[0:v]split=${N}${ops.map((_, k) => `[s${k}]`).join("")}`];
     const vlabels = [];
     ops.forEach((op, k) => {
-      const speed = op.kind === "gap" ? gapSpeed : 1.0;
+      const speed = op.speed;
       const F = Math.round(pieceDurs[k] * fps);
       let chain = `[s${k}]trim=start=${op.start.toFixed(3)}:end=${(op.start + op.dur).toFixed(3)},setpts=PTS-STARTPTS`;
-      if (speed > 1.001) chain += `,setpts=PTS/${speed.toFixed(4)}`;
-      chain += `,fps=${fps},tpad=stop_mode=clone:stop=90,trim=end_frame=${F},setpts=PTS-STARTPTS,setsar=1,format=yuv420p[v${k}]`;
+      if (Math.abs(speed - 1) > 0.001) chain += `,setpts=PTS/${speed.toFixed(4)}`;
+      chain += `,fps=${fps},tpad=stop_mode=clone:stop=360,trim=end_frame=${F},setpts=PTS-STARTPTS,setsar=1,format=yuv420p[v${k}]`;
       parts.push(chain);
       vlabels.push(`[v${k}]`);
     });
@@ -96,7 +121,7 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
   async function buildVideoViaPieces() {
     for (let k = 0; k < ops.length; k++) {
       const op = ops[k];
-      const speed = op.kind === "gap" ? gapSpeed : 1.0;
+      const speed = op.speed;
       const target = op.dur / speed;
       const F = Math.max(1, Math.ceil(target * fps - 1e-6));
       const vf = [
@@ -104,7 +129,7 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
         "setpts=PTS-STARTPTS",
         "tpad=stop_mode=clone:stop=2",
       ];
-      if (speed > 1.001) vf.push(`setpts=PTS/${speed.toFixed(4)}`, `fps=${fps}`);
+      if (Math.abs(speed - 1) > 0.001) vf.push(`setpts=PTS/${speed.toFixed(4)}`, `fps=${fps}`);
       else vf.push(`fps=${fps}`);
       const pname = `p${String(k).padStart(4, "0")}.mp4`;
       await safeDelete(ffmpeg, pname);
@@ -218,26 +243,32 @@ export async function smartRender({ videoFile, segments, clips, clipDurs, gapSpe
     prog(0.9, "စာတန်း ✅");
   }
 
-  // 3. narration on retimed timeline
-  const clipInfos = [];
-  let t = 0;
-  for (let k = 0; k < ops.length; k++) {
-    const op = ops[k], pd = pieceDurs[k];
-    if (op.kind !== "gap") {
-      const slot = Math.max(op.dur, 0.01), cd = clipDurs[op.idx];
-      const rate = cd > slot ? Math.min(cd / slot, MAX_RATE) : 1.0;
-      clipInfos.push({ idx: op.idx, start: t, rate });
+  // 3. narration on retimed timeline — 100% natural speed, never atempo'd.
+  // The picture was fitted to the voice in planOps, so each clip simply
+  // starts at its segment's retimed start. A clip may spill into the
+  // FOLLOWING GAP (nobody is speaking there — that is fine and natural),
+  // but it is hard-trimmed at the NEXT segment's start so two voices can
+  // never overlap.
+  const segStarts = [];
+  {
+    let tt = 0;
+    for (let k = 0; k < ops.length; k++) {
+      if (ops[k].kind !== "gap") segStarts.push({ idx: ops[k].idx, start: tt });
+      tt += pieceDurs[k];
     }
-    t += pd;
   }
+  const totalDur = pieceDurs.reduce((a, b) => a + b, 0);
+  const clipInfos = segStarts.map((s, j) => ({
+    idx: s.idx,
+    start: s.start,
+    window: (j + 1 < segStarts.length ? segStarts[j + 1].start : totalDur) - s.start,
+  }));
   if (!clipInfos.length) throw new Error("Narration မရှိဘူး");
 
   const parts = [], labels = [];
   clipInfos.forEach((c, i) => {
     const ms = Math.round(c.start * 1000);
-    let chain = `[${i + 1}:a]`;
-    if (c.rate > 1.005) chain += `atempo=${c.rate.toFixed(4)},`;
-    chain += `adelay=${ms}:all=1[c${i}]`;
+    const chain = `[${i + 1}:a]atrim=0:${c.window.toFixed(3)},asetpts=PTS-STARTPTS,adelay=${ms}:all=1[c${i}]`;
     parts.push(chain);
     labels.push(`[c${i}]`);
   });
